@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Rota & Task Checklist</title>
+    <style>
+        /*
+        * CSS Styles
+        * Clean, minimalist design with mobile-first responsiveness.
+        * Color scheme: Black, white, dark grey, blue/purple highlights.
+        */
+
+        :root {
+            --primary-bg: #f8f8f8;
+            --secondary-bg: #ffffff;
+            --text-color: #333;
+            --light-grey: #eee;
+            --dark-grey: #555;
+            --accent-color: #6a0dad; /* Purple */
+            --accent-hover: #8a2be2; /* Lighter Purple */
+            --border-color: #ddd;
+            --incomplete-bg: #ffe0b2; /* Light orange for incomplete */
+            --incomplete-border: #ff8c00; /* Darker orange for incomplete */
+        }
+
+        /* Basic Reset & Body Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--primary-bg);
+            padding: 10px;
+        }
+
+        /* Main Container */
+        #app-container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: var(--secondary-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--dark-grey);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        header .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            width: 100%;
+            align-items: center;
+        }
+
+        header select,
+        header button {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 0.9em;
+            cursor: pointer;
+            background-color: white;
+            color: var(--text-color);
+        }
+
+        header button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            transition: background-color 0.2s ease;
+        }
+
+        header button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* Section Styling */
+        section {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        section:last-of-type {
+            border-bottom: none;
+        }
+
+        h2 {
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid var(--light-grey);
+            padding-bottom: 5px;
+        }
+
+        h3 {
+            color: var(--dark-grey);
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        /* Rota View */
+        #rota-view .rota-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Responsive columns */
+            gap: 10px;
+            text-align: center;
+        }
+
+        .rota-day-column {
+            background-color: var(--light-grey);
+            border-radius: 5px;
+            padding: 10px 5px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .rota-day-column strong {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--accent-color);
+        }
+
+        .rota-day-column ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        .rota-day-column li {
+            padding: 3px 0;
+            font-size: 0.9em;
+        }
+
+        /* My Tasks View */
+        #my-tasks-view p {
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        #task-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .task-item {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--accent-color);
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .task-item input[type="checkbox"] {
+            margin-right: 10px;
+            min-width: 20px;
+            min-height: 20px;
+            accent-color: var(--accent-color); /* Highlight checkbox itself */
+            cursor: pointer;
+        }
+
+        .task-item.completed {
+            background-color: var(--light-grey);
+            border-color: #b3e0b3; /* Light green */
+            border-left-color: #4CAF50; /* Green */
+            text-decoration: line-through;
+            color: var(--dark-grey);
+        }
+
+        .task-item.incomplete {
+            background-color: var(--incomplete-bg);
+            border-color: var(--incomplete-border);
+            border-left-color: var(--incomplete-border);
+            animation: pulse-incomplete 1.5s infinite alternate; /* Subtle pulse effect */
+        }
+
+        @keyframes pulse-incomplete {
+            from { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.4); }
+            to { box-shadow: 0 0 0 5px rgba(255, 140, 0, 0); }
+        }
+
+        .task-item span {
+            flex-grow: 1;
+        }
+
+        .task-item .timestamp {
+            font-size: 0.8em;
+            color: var(--dark-grey);
+            white-space: nowrap;
+        }
+
+        /* Admin View */
+        #admin-view {
+            background-color: var(--light-grey);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .admin-section {
+            background-color: var(--secondary-bg);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .admin-section form {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .admin-section label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+            color: var(--dark-grey);
+        }
+
+        .admin-section input[type="text"],
+        .admin-section input[type="date"],
+        .admin-section select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            background-color: var(--primary-bg);
+        }
+
+        .admin-section button {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease;
+            width: fit-content;
+            margin-top: 5px;
+        }
+
+        .admin-section button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* Admin Assigned Tasks List */
+        #admin-assigned-tasks {
+            list-style: none;
+            padding: 0;
+            max-height: 200px; /* Limit height */
+            overflow-y: auto; /* Scroll if too many tasks */
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--primary-bg);
+        }
+
+        #admin-assigned-tasks li {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--light-grey);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+        }
+
+        #admin-assigned-tasks li:last-child {
+            border-bottom: none;
+        }
+
+        #admin-assigned-tasks li span {
+            flex-grow: 1;
+        }
+
+        #admin-assigned-tasks li .delete-task {
+            background-color: #dc3545; /* Red */
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: background-color 0.2s ease;
+        }
+
+        #admin-assigned-tasks li .delete-task:hover {
+            background-color: #c82333; /* Darker Red */
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 0.8em;
+            color: var(--dark-grey);
+            border-top: 1px solid var(--border-color);
+            background-color: var(--light-grey);
+        }
+
+        /* Media Queries for larger screens (Tablet and Desktop) */
+        @media (min-width: 768px) {
+            header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            header .controls {
+                width: auto;
+            }
+
+            header h1 {
+                margin-bottom: 0;
+            }
+
+            .admin-section form {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                align-items: end;
+            }
+
+            .admin-section form button {
+                grid-column: span 1; /* Ensure button stays within its grid column */
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <header>
+            <h1>Staff Rota & Tasks</h1>
+            <div class="controls">
+                <label for="user-select">Select User:</label>
+                <select id="user-select">
+                    <!-- Options will be populated by JS -->
+                </select>
+                <button id="admin-toggle-btn">Admin Mode</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Weekly Rota View -->
+            <section id="rota-view">
+                <h2>Weekly Rota</h2>
+                <div class="rota-grid">
+                    <!-- Rota columns will be populated by JS -->
+                </div>
+            </section>
+
+            <!-- My Tasks View (for selected user) -->
+            <section id="my-tasks-view">
+                <h2>My Tasks for <span id="current-day-info">Today</span></h2>
+                <ul id="task-list">
+                    <!-- Tasks will be populated by JS -->
+                    <li class="no-tasks">No tasks assigned for today.</li>
+                </ul>
+            </section>
+
+            <!-- Admin View (hidden by default) -->
+            <section id="admin-view" style="display: none;">
+                <h2>Admin Panel</h2>
+
+                <div class="admin-section">
+                    <h3>Assign Shifts</h3>
+                    <form id="assign-shift-form">
+                        <div>
+                            <label for="shift-user-select">Staff Member:</label>
+                            <select id="shift-user-select" required>
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                        <div>
+                            <label for="shift-date">Date:</label>
+                            <input type="date" id="shift-date" required>
+                        </div>
+                        <div>
+                            <label for="shift-type">Shift Type:</label>
+                            <input type="text" id="shift-type" placeholder="e.g., Morning, Evening, Off" required>
+                        </div>
+                        <button type="submit">Assign Shift</button>
+                    </form>
+                </div>
+
+                <div class="admin-section">
+                    <h3>Assign Daily Tasks</h3>
+                    <form id="assign-task-form">
+                        <div>
+                            <label for="task-user-select">Staff Member:</label>
+                            <select id="task-user-select" required>
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                        <div>
+                            <label for="task-date">Date:</label>
+                            <input type="date" id="task-date" required>
+                        </div>
+                        <div>
+                            <label for="task-description">Task Description:</label>
+                            <input type="text" id="task-description" placeholder="e.g., Clean coffee machine" required>
+                        </div>
+                        <button type="submit">Add Task</button>
+                    </form>
+                </div>
+
+                <div class="admin-section">
+                    <h3>Current Daily Tasks (for selected user/date)</h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <div>
+                            <label for="view-task-user-select">Staff:</label>
+                            <select id="view-task-user-select">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                        <div>
+                            <label for="view-task-date">Date:</label>
+                            <input type="date" id="view-task-date">
+                        </div>
+                    </div>
+                    <ul id="admin-assigned-tasks">
+                        <li class="no-tasks">Select staff & date to view assigned tasks.</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; <span id="current-year"></span> Staff Rota & Task Checklist. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        /*
+        * JavaScript Logic
+        * Handles data storage, rendering, and user interactions.
+        * Uses localStorage for persistence.
+        */
+
+        // --- DOM Elements ---
+        const userSelect = document.getElementById('user-select');
+        const adminToggleButton = document.getElementById('admin-toggle-btn');
+        const adminView = document.getElementById('admin-view');
+        const rotaGrid = document.querySelector('.rota-grid');
+        const currentDayInfo = document.getElementById('current-day-info');
+        const taskList = document.getElementById('task-list');
+
+        const assignShiftForm = document.getElementById('assign-shift-form');
+        const shiftUserSelect = document.getElementById('shift-user-select');
+        const shiftDateInput = document.getElementById('shift-date');
+        const shiftTypeInput = document.getElementById('shift-type');
+
+        const assignTaskForm = document.getElementById('assign-task-form');
+        const taskUserSelect = document.getElementById('task-user-select');
+        const taskDateInput = document.getElementById('task-date');
+        const taskDescriptionInput = document.getElementById('task-description');
+
+        const viewTaskUserSelect = document.getElementById('view-task-user-select');
+        const viewTaskDateInput = document.getElementById('view-task-date');
+        const adminAssignedTasksList = document.getElementById('admin-assigned-tasks');
+
+        // --- Local Storage Keys ---
+        const LS_KEYS = {
+            STAFF_MEMBERS: 'staffMembers',
+            ROTA: 'rota',
+            DAILY_TASKS: 'dailyTasks',
+            COMPLETED_TASKS: 'completedTasks',
+            CURRENT_USER: 'currentUser',
+            IS_ADMIN_MODE: 'isAdminMode'
+        };
+
+        // --- Data Defaults (for first load) ---
+        let staffMembers = [];
+        let rota = {}; // { 'YYYY-MM-DD': { 'Staff Name': 'Shift Type' } }
+        let dailyTasks = {}; // { 'YYYY-MM-DD': { 'Staff Name': ['Task 1', 'Task 2'] } }
+        let completedTasks = {}; // { 'YYYY-MM-DD': { 'Staff Name': { 'Task Name': timestamp } } }
+        let currentUser = '';
+        let isAdminMode = false;
+
+        // --- Utility Functions ---
+
+        /**
+         * Loads data from localStorage.
+         * @param {string} key - The localStorage key.
+         * @returns {any} Parsed data or null if not found.
+         */
+        function loadData(key) {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : null;
+        }
+
+        /**
+         * Saves data to localStorage.
+         * @param {string} key - The localStorage key.
+         * @param {any} data - The data to save.
+         */
+        function saveData(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+
+        /**
+         * Formats a Date object into 'YYYY-MM-DD' string.
+         * @param {Date} date - The date object.
+         * @returns {string} Formatted date string.
+         */
+        function getFormattedDate(date) {
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        /**
+         * Gets a user-friendly date string (e.g., "Monday, Oct 26").
+         * @param {Date} date - The date object.
+         * @returns {string} User-friendly date string.
+         */
+        function getDisplayDate(date) {
+            return date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+        }
+
+        /**
+         * Gets the dates for the current week (Monday to Sunday).
+         * @param {Date} startDate - A date within the desired week.
+         * @returns {Date[]} An array of 7 Date objects for the week.
+         */
+        function getWeekDays(startDate) {
+            const weekDays = [];
+            const date = new Date(startDate);
+            date.setHours(0, 0, 0, 0); // Normalize to start of day
+
+            // Find Monday of the current week
+            const dayOfWeek = date.getDay(); // 0 (Sunday) to 6 (Saturday)
+            const diff = date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust to Monday
+            date.setDate(diff);
+
+            for (let i = 0; i < 7; i++) {
+                weekDays.push(new Date(date));
+                date.setDate(date.getDate() + 1);
+            }
+            return weekDays;
+        }
+
+        /**
+         * Checks if a given date string is in the past relative to the current day (end of day).
+         * @param {string} dateString - The date string in 'YYYY-MM-DD' format.
+         * @returns {boolean} True if the date is in the past (i.e., its end of day has passed).
+         */
+        function isPastEndOfDay(dateString) {
+            const checkDate = new Date(dateString);
+            const today = new Date();
+
+            // Set checkDate to the end of its day (23:59:59.999)
+            checkDate.setHours(23, 59, 59, 999);
+            // Set today to the start of its day (00:00:00.000) for comparison consistency
+            today.setHours(0, 0, 0, 0);
+
+            return checkDate < today;
+        }
+
+
+        // --- Data Initialization & Default Setup ---
+
+        /**
+         * Initializes data from localStorage or sets defaults if empty.
+         */
+        function initializeData() {
+            staffMembers = loadData(LS_KEYS.STAFF_MEMBERS) || ['Alice', 'Bob', 'Charlie', 'David'];
+            rota = loadData(LS_KEYS.ROTA) || {};
+            dailyTasks = loadData(LS_KEYS.DAILY_TASKS) || {};
+            completedTasks = loadData(LS_KEYS.COMPLETED_TASKS) || {};
+            currentUser = loadData(LS_KEYS.CURRENT_USER) || staffMembers[0] || '';
+            isAdminMode = loadData(LS_KEYS.IS_ADMIN_MODE) || false;
+
+            // Save defaults if they were just created
+            saveData(LS_KEYS.STAFF_MEMBERS, staffMembers);
+            saveData(LS_KEYS.ROTA, rota);
+            saveData(LS_KEYS.DAILY_TASKS, dailyTasks);
+            saveData(LS_KEYS.COMPLETED_TASKS, completedTasks);
+            saveData(LS_KEYS.CURRENT_USER, currentUser);
+            saveData(LS_KEYS.IS_ADMIN_MODE, isAdminMode);
+        }
+
+        // --- Render Functions ---
+
+        /**
+         * Populates the user selection dropdown.
+         */
+        function renderUserDropdown() {
+            userSelect.innerHTML = '';
+            staffMembers.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member;
+                option.textContent = member;
+                userSelect.appendChild(option);
+            });
+            userSelect.value = currentUser; // Set selected user
+        }
+
+        /**
+         * Renders the weekly rota grid.
+         */
+        function renderRota() {
+            rotaGrid.innerHTML = '';
+            const today = new Date();
+            const weekDays = getWeekDays(today);
+
+            weekDays.forEach(day => {
+                const formattedDate = getFormattedDate(day);
+                const dayColumn = document.createElement('div');
+                dayColumn.classList.add('rota-day-column');
+                dayColumn.innerHTML = `
+                    <strong>${getDisplayDate(day)}</strong>
+                    <ul></ul>
+                `;
+                const ul = dayColumn.querySelector('ul');
+
+                // Get rota data for this day
+                const dayRota = rota[formattedDate] || {};
+
+                // Display staff and their shifts
+                staffMembers.forEach(member => {
+                    const shift = dayRota[member] || 'Off'; // Default to 'Off' if no shift assigned
+                    const li = document.createElement('li');
+                    li.textContent = `${member}: ${shift}`;
+                    ul.appendChild(li);
+                });
+
+                rotaGrid.appendChild(dayColumn);
+            });
+        }
+
+        /**
+         * Renders the current user's tasks for the current day.
+         */
+        function renderMyTasks() {
+            taskList.innerHTML = '';
+            const today = new Date();
+            const formattedToday = getFormattedDate(today);
+
+            currentDayInfo.textContent = getDisplayDate(today);
+
+            if (!currentUser) {
+                taskList.innerHTML = '<li class="no-tasks">Please select a staff member.</li>';
+                return;
+            }
+
+            const tasksForToday = (dailyTasks[formattedToday] && dailyTasks[formattedToday][currentUser]) || [];
+            const completedTasksForToday = (completedTasks[formattedToday] && completedTasks[formattedToday][currentUser]) || {};
+
+            if (tasksForToday.length === 0) {
+                taskList.innerHTML = '<li class="no-tasks">No tasks assigned for today.</li>';
+                return;
+            }
+
+            tasksForToday.forEach(task => {
+                const li = document.createElement('li');
+                li.classList.add('task-item');
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.dataset.taskName = task; // Store task name for easy lookup
+                checkbox.dataset.taskDate = formattedToday;
+                checkbox.dataset.staffName = currentUser;
+
+                const isCompleted = completedTasksForToday[task];
+                if (isCompleted) {
+                    checkbox.checked = true;
+                    li.classList.add('completed');
+                } else if (isPastEndOfDay(formattedToday)) {
+                    // Task is incomplete and the day is past
+                    li.classList.add('incomplete');
+                }
+
+                const taskSpan = document.createElement('span');
+                taskSpan.textContent = task;
+
+                const timestampSpan = document.createElement('span');
+                timestampSpan.classList.add('timestamp');
+                if (isCompleted) {
+                    timestampSpan.textContent = new Date(isCompleted).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+
+                li.appendChild(checkbox);
+                li.appendChild(taskSpan);
+                li.appendChild(timestampSpan);
+                taskList.appendChild(li);
+            });
+        }
+
+        /**
+         * Populates the admin forms with staff members and sets default dates.
+         */
+        function renderAdminForms() {
+            const today = new Date();
+            const formattedToday = getFormattedDate(today);
+
+            // Populate staff dropdowns in admin forms
+            [shiftUserSelect, taskUserSelect, viewTaskUserSelect].forEach(select => {
+                select.innerHTML = '';
+                staffMembers.forEach(member => {
+                    const option = document.createElement('option');
+                    option.value = member;
+                    option.textContent = member;
+                    select.appendChild(option);
+                });
+                // Select the current user by default if available
+                if (currentUser && staffMembers.includes(currentUser)) {
+                    select.value = currentUser;
+                } else if (staffMembers.length > 0) {
+                    select.value = staffMembers[0];
+                }
+            });
+
+            // Set default dates to today
+            shiftDateInput.value = formattedToday;
+            taskDateInput.value = formattedToday;
+            viewTaskDateInput.value = formattedToday;
+
+            // Trigger initial render of admin assigned tasks
+            renderAdminAssignedTasks();
+        }
+
+        /**
+         * Renders the list of tasks assigned for a selected staff member and date in the admin view.
+         */
+        function renderAdminAssignedTasks() {
+            adminAssignedTasksList.innerHTML = '';
+            const selectedStaff = viewTaskUserSelect.value;
+            const selectedDate = viewTaskDateInput.value;
+
+            if (!selectedStaff || !selectedDate) {
+                adminAssignedTasksList.innerHTML = '<li class="no-tasks">Select staff & date to view assigned tasks.</li>';
+                return;
+            }
+
+            const tasks = (dailyTasks[selectedDate] && dailyTasks[selectedDate][selectedStaff]) || [];
+
+            if (tasks.length === 0) {
+                adminAssignedTasksList.innerHTML = '<li class="no-tasks">No tasks assigned for this day.</li>';
+                return;
+            }
+
+            tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${task}</span>
+                    <button class="delete-task" data-task="${task}">Delete</button>
+                `;
+                adminAssignedTasksList.appendChild(li);
+            });
+        }
+
+
+        // --- Event Handlers ---
+
+        /**
+         * Handles user selection from the dropdown.
+         */
+        function handleUserChange() {
+            currentUser = userSelect.value;
+            saveData(LS_KEYS.CURRENT_USER, currentUser);
+            renderMyTasks();
+            if (isAdminMode) {
+                // Update admin task view if admin mode is active
+                viewTaskUserSelect.value = currentUser;
+                renderAdminAssignedTasks();
+            }
+        }
+
+        /**
+         * Toggles the visibility of the admin panel.
+         */
+        function toggleAdminView() {
+            isAdminMode = !isAdminMode;
+            saveData(LS_KEYS.IS_ADMIN_MODE, isAdminMode);
+            adminView.style.display = isAdminMode ? 'block' : 'none';
+            adminToggleButton.textContent = isAdminMode ? 'Exit Admin' : 'Admin Mode';
+            if (isAdminMode) {
+                renderAdminForms(); // Re-render forms when entering admin mode
+            }
+        }
+
+        /**
+         * Handles task checkbox changes.
+         * @param {Event} event - The change event from the checkbox.
+         */
+        function handleTaskCompletion(event) {
+            const checkbox = event.target;
+            const taskName = checkbox.dataset.taskName;
+            const taskDate = checkbox.dataset.taskDate;
+            const staffName = checkbox.dataset.staffName;
+
+            completedTasks[taskDate] = completedTasks[taskDate] || {};
+            completedTasks[taskDate][staffName] = completedTasks[taskDate][staffName] || {};
+
+            if (checkbox.checked) {
+                completedTasks[taskDate][staffName][taskName] = Date.now();
+            } else {
+                delete completedTasks[taskDate][staffName][taskName];
+                if (Object.keys(completedTasks[taskDate][staffName]).length === 0) {
+                    delete completedTasks[taskDate][staffName];
+                }
+            }
+            saveData(LS_KEYS.COMPLETED_TASKS, completedTasks);
+            renderMyTasks(); // Re-render to update UI (e.g., timestamp, styling)
+        }
+
+        /**
+         * Handles the submission of the assign shift form.
+         * @param {Event} event - The form submit event.
+         */
+        function handleAssignShift(event) {
+            event.preventDefault();
+            const staff = shiftUserSelect.value;
+            const date = shiftDateInput.value;
+            const shift = shiftTypeInput.value.trim();
+
+            if (!staff || !date || !shift) {
+                alert('Please fill all shift assignment fields.');
+                return;
+            }
+
+            rota[date] = rota[date] || {};
+            rota[date][staff] = shift;
+            saveData(LS_KEYS.ROTA, rota);
+            renderRota(); // Update rota view
+            alert(`Shift '${shift}' assigned to ${staff} on ${date}.`);
+            shiftTypeInput.value = ''; // Clear shift input
+        }
+
+        /**
+         * Handles the submission of the assign task form.
+         * @param {Event} event - The form submit event.
+         */
+        function handleAssignTask(event) {
+            event.preventDefault();
+            const staff = taskUserSelect.value;
+            const date = taskDateInput.value;
+            const task = taskDescriptionInput.value.trim();
+
+            if (!staff || !date || !task) {
+                alert('Please fill all task assignment fields.');
+                return;
+            }
+
+            dailyTasks[date] = dailyTasks[date] || {};
+            dailyTasks[date][staff] = dailyTasks[date][staff] || [];
+
+            // Prevent adding duplicate tasks for the same staff and day
+            if (!dailyTasks[date][staff].includes(task)) {
+                dailyTasks[date][staff].push(task);
+                saveData(LS_KEYS.DAILY_TASKS, dailyTasks);
+                renderMyTasks(); // Update personal task view if current user/day matches
+                renderAdminAssignedTasks(); // Update admin task list
+                alert(`Task '${task}' added for ${staff} on ${date}.`);
+            } else {
+                alert('This task is already assigned for this staff member on this day.');
+            }
+            taskDescriptionInput.value = ''; // Clear task input
+        }
+
+        /**
+         * Handles deletion of a task from the admin assigned tasks list.
+         * @param {Event} event - The click event on the delete button.
+         */
+        function handleDeleteAdminTask(event) {
+            if (event.target.classList.contains('delete-task')) {
+                const taskToDelete = event.target.dataset.task;
+                const staff = viewTaskUserSelect.value;
+                const date = viewTaskDateInput.value;
+
+                if (confirm(`Are you sure you want to delete task "${taskToDelete}" for ${staff} on ${date}?`)) {
+                    if (dailyTasks[date] && dailyTasks[date][staff]) {
+                        dailyTasks[date][staff] = dailyTasks[date][staff].filter(t => t !== taskToDelete);
+                        // Clean up empty arrays/objects
+                        if (dailyTasks[date][staff].length === 0) {
+                            delete dailyTasks[date][staff];
+                        }
+                        if (Object.keys(dailyTasks[date]).length === 0) {
+                            delete dailyTasks[date];
+                        }
+                        saveData(LS_KEYS.DAILY_TASKS, dailyTasks);
+
+                        // Also remove from completed tasks if it was completed
+                        if (completedTasks[date] && completedTasks[date][staff] && completedTasks[date][staff][taskToDelete]) {
+                            delete completedTasks[date][staff][taskToDelete];
+                            if (Object.keys(completedTasks[date][staff]).length === 0) {
+                                delete completedTasks[date][staff];
+                            }
+                            if (Object.keys(completedTasks[date]).length === 0) {
+                                delete completedTasks[date];
+                            }
+                            saveData(LS_KEYS.COMPLETED_TASKS, completedTasks);
+                        }
+
+                        renderAdminAssignedTasks(); // Re-render admin task list
+                        renderMyTasks(); // Re-render personal task list
+                        alert('Task deleted.');
+                    }
+                }
+            }
+        }
+
+        // --- Initialization ---
+
+        /**
+         * Main initialization function, called when DOM is ready.
+         */
+        function init() {
+            initializeData();
+            renderUserDropdown();
+            renderRota();
+            renderMyTasks(); // Initial render for selected user
+
+            // Set admin mode state
+            if (isAdminMode) {
+                adminView.style.display = 'block';
+                adminToggleButton.textContent = 'Exit Admin';
+                renderAdminForms();
+            }
+
+            // Set current year in footer
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+
+            // --- Event Listeners ---
+            userSelect.addEventListener('change', handleUserChange);
+            adminToggleButton.addEventListener('click', toggleAdminView);
+            taskList.addEventListener('change', handleTaskCompletion); // Event delegation for tasks
+
+            // Admin form listeners
+            assignShiftForm.addEventListener('submit', handleAssignShift);
+            assignTaskForm.addEventListener('submit', handleAssignTask);
+
+            // Admin view task list listeners
+            viewTaskUserSelect.addEventListener('change', renderAdminAssignedTasks);
+            viewTaskDateInput.addEventListener('change', renderAdminAssignedTasks);
+            adminAssignedTasksList.addEventListener('click', handleDeleteAdminTask); // Event delegation for delete buttons
+        }
+
+        // Run init when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

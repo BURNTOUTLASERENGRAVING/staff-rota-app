@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Staff Rota & Task Checklist</title>
-  <!-- <link rel="manifest" href="manifest.json"> -->
   <style>
     :root {
       --primary-bg: #f4f4f4;
@@ -39,6 +38,7 @@
       --header-text-color: #ffffff;
       --link-color: var(--accent-color);
       --modal-overlay-bg: rgba(0,0,0,0.5);
+      --toast-container-bg: transparent; /* Or a specific color if you want a bar */
     }
 
     :root.dark {
@@ -86,15 +86,10 @@
     #landing-page h1 { color: var(--accent-color); font-size: clamp(1.8em, 5vw, 2.2em); margin-bottom: 20px; }
     #landing-page p  { color: var(--dark-grey); margin-bottom: 20px; font-size: clamp(1em, 3vw, 1.1em); }
     
-    /* Temporary Debugging Styles for Staff Icons START */
     #staff-icons-container {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
       gap: 15px; margin-bottom: 25px; width: 100%; min-height: 100px;
       align-items: start; justify-items: center;
-      /* Debug styles: */
-      background-color: lightgray; 
-      border: 2px solid black;
-      padding: 5px; 
     }
     .staff-icon {
       background: var(--light-grey); border-radius: 10px; padding: 12px 5px; cursor: pointer;
@@ -102,12 +97,7 @@
       align-items: center; justify-content: center; min-height: 100px; min-width: 90px;
       animation: pulse 2s infinite ease-in-out; transition: all 0.2s ease;
       border: 1px solid var(--border-color);
-      /* Debug styles: */
-      background-color: lightblue; 
-      border: 1px solid red; /* Overrides the var(--border-color) for debugging */
-      margin: 2px; 
     }
-    /* Temporary Debugging Styles for Staff Icons END */
 
     .staff-icon:hover {
       background: var(--accent-hover); transform: translateY(-4px) scale(1.02); color: var(--button-text-color);
@@ -166,7 +156,7 @@
     h3 { color: var(--dark-grey); margin-top: 20px; margin-bottom: 10px; font-size: clamp(1.05em, 3.5vw, 1.15em); }
     h4 { color: var(--dark-grey); margin-top: 12px; margin-bottom: 6px; font-size: clamp(0.9em, 3vw, 1em); font-weight: bold; }
 
-    .home-tabs { display: none; } /* Initially hidden, JS will show for mobile */
+    .home-tabs { display: none; } 
     .home-tabs button { flex-grow: 1; margin:0 2px; border-radius: 6px 6px 0 0; background-color: var(--light-grey); color: var(--text-color); border: 1px solid var(--border-color); border-bottom:none;}
     .home-tabs button.active { background-color: var(--secondary-bg); font-weight: bold; border-bottom: 1px solid var(--secondary-bg); margin-bottom: -1px; color: var(--accent-color); }
     .home-tab-content { display: none; }
@@ -217,7 +207,6 @@
     .swap-action-btn.reject:hover { background-color: #d84315; }
     .delete-btn:active, .swap-action-btn:active { transform: translateY(0); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-    /* Modal styles */
     .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: var(--modal-overlay-bg); justify-content: center; align-items: center; padding: 10px; }
     .modal-content { background-color: var(--secondary-bg); margin: auto; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; width: 90%; max-width: 500px; box-shadow: var(--card-shadow); position:relative; }
     .modal-close-btn { color: var(--dark-grey); float: right; font-size: 28px; font-weight: bold; position:absolute; top:10px; right:15px; cursor:pointer; }
@@ -242,7 +231,7 @@
     #message-list li:last-child { border-bottom: none; }
     #message-list .message-sender { font-weight: bold; color: var(--accent-color); margin-right: 8px; }
     #message-list .message-timestamp { font-size: 0.8em; color: var(--dark-grey); margin-right: 8px; }
-    #message-list .message-text-content { display: block; /* Ensures message text wraps if long */ white-space: pre-wrap; /* Preserves whitespace and newlines */ word-break: break-word; }
+    #message-list .message-text-content { display: block; white-space: pre-wrap; word-break: break-word; }
     #message-input-form { display: flex; gap: 8px; margin-top: 10px; }
     #message-input-form textarea { flex-grow: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--input-border); background-color: var(--input-bg); color: var(--text-color); resize: vertical; min-height: 40px; }
     #message-input-form button { white-space: nowrap; }
@@ -250,16 +239,90 @@
     #clock-status-banner-home { padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid; }
     #clock-status-banner-home.clocked-in { background-color: var(--completed-bg); border-color: var(--completed-border); }
     #clock-status-banner-home.not-clocked-in { background-color: var(--incomplete-bg); border-color: var(--incomplete-border); }
-     .who-is-working-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .who-is-working-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Increased minmax for card width */ gap: 15px; margin-bottom: 20px; }
     .working-staff-column { background-color: var(--light-grey); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); }
     .working-staff-column strong { display: block; text-align: center; margin-bottom: 8px; color: var(--accent-color); }
     .working-staff-column ul { list-style: none; padding:0; }
-    .working-staff-column ul li { padding: 4px 0; font-size: 0.9em; border-bottom: 1px dashed var(--border-color); }
-    .working-staff-column ul li:last-child { border-bottom: none; }
+    
+    /* Styles for "Who's Working Today?" cards (NEW) */
+    .working-staff-column ul li { 
+        padding: 0;
+        margin: 0;
+        border-bottom: none; 
+    }
+    .working-staff-card {
+        background-color: var(--secondary-bg); 
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 15px 10px; 
+        margin-bottom: 10px; 
+        text-align: center;
+        box-shadow: var(--card-shadow); 
+        transition: transform 0.2s ease-in-out;
+    }
+    .working-staff-card:hover {
+        transform: translateY(-2px);
+    }
+    .working-staff-card .icon-placeholder {
+        font-size: 2.8em; 
+        display: block;
+        margin-bottom: 8px;
+        line-height: 1;
+    }
+    .working-staff-card.foh-staff .icon-placeholder { color: var(--foh-color); }
+    .working-staff-card.boh-staff .icon-placeholder { color: var(--boh-color); }
+    .working-staff-card.admin-staff .icon-placeholder { color: var(--admin-color); }
+    .working-staff-card .staff-name {
+        font-weight: bold;
+        font-size: 1em; 
+        margin-bottom: 4px;
+        color: var(--text-color);
+    }
+    .working-staff-card .staff-shift-time {
+        font-size: 0.85em;
+        color: var(--dark-grey);
+    }
+    /* End of New "Who's Working" Card Styles */
+
     #home-task-list { list-style:none; padding:0; margin-top: 10px; }
     #home-task-list li { display: flex; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--border-color); }
     #home-task-list li:last-child { border-bottom: none; }
     #home-task-list input[type="checkbox"] { margin-right: 10px; width: 18px; height: 18px; }
+
+    /* Toast container and individual toast styles */
+    #toast-container {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2000; /* Ensure it's above most other content */
+        display: flex;
+        flex-direction: column-reverse; /* New toasts appear on top if multiple */
+        align-items: center;
+        gap: 10px;
+        background-color: var(--toast-container-bg);
+    }
+
+    .toast {
+        padding: 12px 20px;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 0.9em;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        min-width: 250px; /* Minimum width for toasts */
+        text-align: center;
+    }
+    .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .toast.info { background-color: #17a2b8; } /* Bootstrap info color */
+    .toast.success { background-color: #28a745; } /* Bootstrap success color */
+    .toast.error { background-color: #dc3545; } /* Bootstrap danger color */
+    .toast.warning { background-color: #ffc107; color: #333; } /* Bootstrap warning color */
 
 
     /* Print Styles */
@@ -275,6 +338,8 @@
         #admin-view .admin-section form { grid-template-columns: 1fr; }
         .calendar-controls { flex-direction: column; gap: 8px; }
         .calendar-controls button, .calendar-controls select { width:100%; }
+        #toast-container { width: 90%; } /* Make toast container slightly less wide on mobile */
+
     }
 
     @media (max-width: 600px) {
@@ -299,6 +364,7 @@
   </style>
 </head>
 <body>
+    <!-- HTML Structure remains the same -->
      <div id="landing-page">
         <h1>Welcome, Staff!</h1>
         <p>Please select your profile to continue:</p>
@@ -523,7 +589,6 @@
             </section>
         </main>
 
-        <!-- Shift Swap Request Modal -->
         <div id="shift-swap-modal" class="modal">
             <div class="modal-content">
                 <span class="modal-close-btn" id="shift-swap-modal-close-btn">×</span>
@@ -609,7 +674,7 @@
         const SHIFT_HOURS_MAP = { "8AM-4PM": 8, "12PM-8PM": 8, "5PM-Close": 7, "Off": 0 };
 
 
-        function showToast(message, type = 'info', duration = 3000) { const cont = document.getElementById('toast-container'); if (!cont) return; const toast = document.createElement('div'); toast.classList.add('toast', type); toast.textContent = message; cont.appendChild(toast); void toast.offsetWidth; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove()); }, duration); }
+        function showToast(message, type = 'info', duration = 3000) { const cont = document.getElementById('toast-container'); if (!cont) return; const toast = document.createElement('div'); toast.classList.add('toast', type); toast.textContent = message; cont.appendChild(toast); requestAnimationFrame(() => { toast.classList.add('show'); }); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove(), { once: true }); }, duration); }
         function loadData(key) { const d = localStorage.getItem(key); try { return d ? JSON.parse(d) : null; } catch (e) { console.error(`Error loading data from localStorage for key "${key}":`, e); return null; } }
         function saveData(key, data) { try { localStorage.setItem(key, JSON.stringify(data)); } catch (e) { console.error(`Error saving data to localStorage for key "${key}":`, e); } }
         function getFormattedDate(date) { return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`; }
@@ -644,9 +709,8 @@
             staffMembers = (loadedStaff && loadedStaff.length > 0) ? loadedStaff : [
                 {name:'Jill',role:'FOH',icon:'💁‍♀️'},{name:'Alice',role:'FOH',icon:'💁‍♀️'},{name:'Callum',role:'FOH',icon:'💁‍♀️'},{name:'Jess',role:'FOH',icon:'💁‍♀️'},{name:'Danny',role:'BOH',icon:'👩‍🍳'},{name:'Neil',role:'BOH',icon:'👩‍🍳'},{name:'Terry',role:'BOH',icon:'👩‍🍳'},{name:'Richard',role:'BOH',icon:'👩‍🍳'},{name:'Johnny',role:'Admin',icon:'🤵'},{name:'Lyndsey',role:'Admin',icon:'🤵'},{name:'Collin',role:'Admin',icon:'🤵'}
             ];
-            saveData(LS_KEYS.STAFF_MEMBERS, staffMembers); // Save back, in case defaults were used or to ensure consistency
-            console.log("Initialized/Loaded staffMembers:", staffMembers);
-
+            saveData(LS_KEYS.STAFF_MEMBERS, staffMembers); 
+            // console.log("Initialized/Loaded staffMembers:", staffMembers);
 
             rota=loadData(LS_KEYS.ROTA)||{};
             dailyTasks=loadData(LS_KEYS.DAILY_TASKS)||{};
@@ -666,7 +730,6 @@
             if (isDarkMode) document.documentElement.classList.add('dark');
             if (darkModeToggle) darkModeToggle.textContent = isDarkMode ? '🌞' : '🌙';
 
-            // Save all other data points as well
             saveData(LS_KEYS.ROTA, rota); saveData(LS_KEYS.DAILY_TASKS, dailyTasks); saveData(LS_KEYS.COMPLETED_TASKS, completedTasks); saveData(LS_KEYS.CLOCK_INS, clockIns); saveData(LS_KEYS.MESSAGE_BOARD, messageBoard); saveData(LS_KEYS.HOLIDAYS, holidays); saveData(LS_KEYS.AVAILABILITY, availability);
             saveData(LS_KEYS.SHIFT_SWAP_REQUESTS, shiftSwapRequests); saveData(LS_KEYS.AUDIT_LOG, auditLog); saveData(LS_KEYS.DARK_MODE, isDarkMode);
             saveData(LS_KEYS.CURRENT_USER_NAME, currentUserName); saveData(LS_KEYS.CURRENT_USER_ROLE, currentUserRole); saveData(LS_KEYS.IS_ADMIN_MODE, isAdminMode); saveData(LS_KEYS.LAST_ACTIVE_VIEW, activeViewId);
@@ -692,21 +755,21 @@
         }
 
         function renderLandingPage(){
-            console.log("renderLandingPage called. Staff to render:", staffMembers);
+            // console.log("renderLandingPage called. Staff to render:", staffMembers);
             if (!staffIconsContainer) {
                 console.error("staffIconsContainer DOM element not found!");
                 return;
             }
-            staffIconsContainer.innerHTML=''; // Clear previous icons
+            staffIconsContainer.innerHTML=''; 
 
             if (!staffMembers || staffMembers.length === 0) {
-                console.warn("No staff members to render icons for.");
-                staffIconsContainer.innerHTML = '<p style="color: var(--dark-grey); grid-column: 1 / -1;">No staff profiles available. Please check configuration.</p>'; // User feedback
+                // console.warn("No staff members to render icons for.");
+                staffIconsContainer.innerHTML = '<p style="color: var(--dark-grey); grid-column: 1 / -1;">No staff profiles available. Please check configuration.</p>'; 
                 return;
             }
 
             staffMembers.forEach(m=>{
-                console.log('Appending icon for:', m.name); // Debug log for each icon
+                // console.log('Appending icon for:', m.name); 
                 const iD=document.createElement('div');
                 iD.className=`staff-icon ${m.role.toLowerCase()}`;
                 iD.dataset.name=m.name;
@@ -753,14 +816,32 @@
                 const todayClockIns = clockIns[today] || {};
                 let fohStaffOn = 0, bohStaffOn = 0, adminStaffOn = 0;
 
-                staffMembers.forEach(staff => {
-                    const staffClockInRecord = todayClockIns[staff.name];
-                    if (staffClockInRecord && staffClockInRecord.out === null) {
+                staffMembers.forEach(staffDetail => { // Iterate over staffMembers to get icon and role
+                    const staffClockInRecord = todayClockIns[staffDetail.name];
+
+                    if (staffClockInRecord && staffClockInRecord.out === null) { // Staff is clocked in
                         const li = document.createElement('li');
-                        li.textContent = `${staff.name} (In: ${formatTimestampToTime(staffClockInRecord.in)})`;
-                        if (staff.role === 'FOH' && fohWorkingList) { fohWorkingList.appendChild(li); fohStaffOn++; }
-                        else if (staff.role === 'BOH' && bohWorkingList) { bohWorkingList.appendChild(li); bohStaffOn++; }
-                        else if (staff.role === 'Admin' && adminWorkingList) { adminWorkingList.appendChild(li); adminStaffOn++; }
+                        
+                        const shiftToday = (rota[today] && rota[today][staffDetail.name] && rota[today][staffDetail.name] !== 'Off') 
+                                           ? rota[today][staffDetail.name] 
+                                           : `Clocked In: ${formatTimestampToTime(staffClockInRecord.in)}`;
+                        
+                        let roleClass = '';
+                        if (staffDetail.role === 'FOH') roleClass = 'foh-staff';
+                        else if (staffDetail.role === 'BOH') roleClass = 'boh-staff';
+                        else if (staffDetail.role === 'Admin') roleClass = 'admin-staff';
+
+                        li.innerHTML = `
+                            <div class="working-staff-card ${roleClass}">
+                                <span class="icon-placeholder">${staffDetail.icon}</span>
+                                <div class="staff-name">${staffDetail.name}</div>
+                                <div class="staff-shift-time">${shiftToday}</div>
+                            </div>
+                        `;
+
+                        if (staffDetail.role === 'FOH' && fohWorkingList) { fohWorkingList.appendChild(li); fohStaffOn++; }
+                        else if (staffDetail.role === 'BOH' && bohWorkingList) { bohWorkingList.appendChild(li); bohStaffOn++; }
+                        else if (staffDetail.role === 'Admin' && adminWorkingList) { adminWorkingList.appendChild(li); adminStaffOn++; }
                     }
                 });
 
@@ -876,7 +957,7 @@
                 messageList.appendChild(li);
             });
              if (messageList.firstChild) {
-                messageList.scrollTop = messageList.scrollHeight; // Scroll to the bottom
+                messageList.scrollTop = messageList.scrollHeight;
             }
         }
 
@@ -891,7 +972,7 @@
                     timestamp: new Date().toISOString()
                 };
                 messageBoard.push(newMessage);
-                cleanupMessages(); // Ensure we don't exceed max messages
+                cleanupMessages(); 
                 saveData(LS_KEYS.MESSAGE_BOARD, messageBoard);
                 renderMessageBoard(); 
                 messageTextarea.value = ''; 
@@ -917,7 +998,6 @@
                 taskList.appendChild(shiftLi);
             }
 
-
             const tasksForUserToday = (dailyTasks[formattedToday] && dailyTasks[formattedToday][currentUserName]) ? dailyTasks[formattedToday][currentUserName] : [];
 
             if (tasksForUserToday.length === 0 && (!userShiftsToday || userShiftsToday === 'Off')) {
@@ -925,27 +1005,18 @@
                 return;
             }
             
-            if (tasksForUserToday.length === 0 && userShiftsToday && userShiftsToday !== 'Off') {
-                 // Already handled shift, so if no tasks, this is fine. Or add a "No specific tasks for this shift" message.
-            }
-
-
             tasksForUserToday.forEach(task => {
                 const li = document.createElement('li');
                 li.classList.add('task-item');
                 const checkboxId = `task-checkbox-${task.id.replace(/\s+/g, '-')}`;
                 const isCompleted = completedTasks[task.id] && completedTasks[task.id].status === 'completed';
-                const isPastDue = !isCompleted && isPastEndOfDay(task.date); // Assumes task object has a 'date'
+                const taskDate = task.date || formattedToday; // Fallback to today if task.date is missing
+                const isPastDue = !isCompleted && isPastEndOfDay(taskDate);
 
                 let taskHTML = `
                     <input type="checkbox" id="${checkboxId}" data-task-id="${task.id}" ${isCompleted ? 'checked' : ''}>
                     <label for="${checkboxId}" class="${isCompleted ? 'completed' : ''}${isPastDue ? ' past-due' : ''}">${task.description}</label>
                 `;
-                // Add image upload if needed (example)
-                // taskHTML += `<input type="file" accept="image/*" class="image-upload-input" style="display:none;" data-task-id="${task.id}"><button class="upload-image-btn">Upload Image</button>`;
-                // if (completedTasks[task.id] && completedTasks[task.id].imageUrl) {
-                //    taskHTML += `<img src="${completedTasks[task.id].imageUrl}" alt="Task image" style="max-width:100px; max-height:100px; margin-left:10px;">`;
-                // }
                 li.innerHTML = taskHTML;
                 taskList.appendChild(li);
             });
@@ -955,16 +1026,22 @@
             if (target.type === 'checkbox' && target.dataset.taskId) {
                 const taskId = target.dataset.taskId;
                 const isChecked = target.checked;
-                completedTasks[taskId] = completedTasks[taskId] || {};
+                completedTasks[taskId] = completedTasks[taskId] || {}; // Ensure object exists
+                const taskEntry = Object.values(dailyTasks).flatMap(dayTasks => Object.values(dayTasks).flat()).find(t => t.id === taskId);
+
                 completedTasks[taskId].status = isChecked ? 'completed' : 'pending';
                 completedTasks[taskId].timestamp = new Date().toISOString();
+                completedTasks[taskId].user = currentUserName; // Log who completed it
+                if(taskEntry) completedTasks[taskId].date = taskEntry.date;
+
+
                 saveData(LS_KEYS.COMPLETED_TASKS, completedTasks);
                 target.nextElementSibling.classList.toggle('completed', isChecked);
                 logAdminAction(isChecked ? "Task Completed" : "Task Marked Pending", { taskId: taskId, user: currentUserName });
-                if (activeViewId === 'home-view') renderHomePage(); // Refresh home tasks if visible
+                if (activeViewId === 'home-view') renderHomePage(); 
+                if (activeViewId === 'my-tasks-view') renderMyTasks(); // Also refresh if on my-tasks page
                 if (activeViewId === 'dashboard-view') renderDashboard();
             }
-            // Add image handling logic if you implement it
         }
 
         function renderWeeklyRota(){
@@ -980,32 +1057,31 @@
                  return;
             }
 
-
             let hasAnyShiftsThisWeek = false;
             weekDates.forEach(d=>{
                 const fD=getFormattedDate(d);const dC=document.createElement('div');dC.classList.add('rota-day-column');dC.innerHTML=`<strong>${getDisplayDate(d)}</strong><ul></ul>`;const ul=dC.querySelector('ul');const dR=rota[fD]||{};
                 const sD=staffMembers.filter(m=>{if(!isCurrentUserAdmin()&&((currentUserRole==='FOH'&&m.role==='BOH')||(currentUserRole==='BOH'&&m.role==='FOH')))return false;return true;}).sort((a,b)=>{ const rO={'FOH':1,'BOH':2,'Admin':3}; if(rO[a.role]!==rO[b.role])return rO[a.role]-rO[b.role]; return a.name.localeCompare(b.name);});
                 
-                if (sD.length === 0 && Object.keys(dR).length === 0) { // No staff to display for this user type AND no rota entries for anyone for this day
+                if (sD.length === 0 && Object.keys(dR).length === 0) { 
                      ul.innerHTML = '<li class="no-data" style="text-align:center;">No Shifts</li>';
                 } else {
                     let hasEntriesForDay = false;
                     sD.forEach(m=>{const s=dR[m.name]||'Off';const li=document.createElement('li');li.textContent=`${m.name}: ${s}`;li.classList.add(m.role.toLowerCase());ul.appendChild(li); if(s !== 'Off') {hasEntriesForDay = true; hasAnyShiftsThisWeek = true;}});
                     
-                    if (!hasEntriesForDay && Object.keys(dR).length > 0 && sD.length > 0) { // Rota data exists, but all relevant staff are 'Off' or not listed
+                    if (!hasEntriesForDay && Object.keys(dR).length > 0 && sD.length > 0) { 
                          ul.innerHTML = '<li class="no-data" style="text-align:center;">All Off / No Shifts</li>';
-                    } else if (sD.length > 0 && Object.keys(dR).filter(name => sD.find(staff => staff.name === name)).length === 0) { // Staff to display, but no rota entries for them
+                    } else if (sD.length > 0 && Object.keys(dR).filter(name => sD.find(staff => staff.name === name)).length === 0) { 
                          ul.innerHTML = '<li class="no-data" style="text-align:center;">No Shifts Assigned</li>';
+                    } else if (ul.children.length === 0) { // Catch-all if no LIs were added for some reason
+                        ul.innerHTML = '<li class="no-data" style="text-align:center;">No Shifts</li>';
                     }
                 }
                 rotaGrid.appendChild(dC);
             });
 
-            if (!hasAnyShiftsThisWeek && hasAnyRotaDataForThisWeek) { // Rota data exists for the week, but all shifts are 'Off' for displayed staff
-                // This state is typically fine - it means everyone is off.
-                // If you want a specific message here, you can add it.
-                // For now, the individual day columns will show "All Off / No Shifts".
-            } else if (!hasAnyShiftsThisWeek && !hasAnyRotaDataForThisWeek) { // This case should be caught by the initial check.
+            if (!hasAnyShiftsThisWeek && hasAnyRotaDataForThisWeek) {
+                // The individual day columns will show "All Off / No Shifts".
+            } else if (!hasAnyShiftsThisWeek && !hasAnyRotaDataForThisWeek) { 
                  rotaGrid.innerHTML = '<p class="no-data" style="grid-column: span 7; text-align:center;">No rota data available for this week.</p>';
             }
         }
@@ -1073,57 +1149,64 @@
         function renderAdminForms(){const tD=new Date(),fTD=getFormattedDate(tD);renderUserDropdownsInApp();populateHolidayStaffSelect(); populateAdminAvailabilityStaffFilter(); populateAdminAvailabilitySlotFilter(); const aFE=adminView.querySelectorAll('input,select,button');const dAC=!isCurrentUserAdmin();aFE.forEach(e=>e.disabled=dAC);shiftDateInput.value=fTD;taskDateInput.value=fTD;viewShiftDateInput.value=fTD;viewTaskDateInput.value=fTD;holidayStartDateInput.value=fTD;holidayEndDateInput.value=fTD;attendanceDateInput.value=fTD;taskOverviewDateFilterInput.value=fTD;shiftTypeSelect.value='8AM-4PM';customShiftInputContainer.style.display='none';customShiftTypeInput.value='';taskDescriptionSelect.value=(taskDescriptionSelect.options[1]?taskDescriptionSelect.options[1].value:'Slicing Lemons'); customTaskDescriptionContainer.style.display='none';customTaskDescriptionInput.value=''; shiftRepeatWeeklyCheckbox.checked = false; shiftUntilDateContainer.style.display = 'none'; taskRepeatWeeklyCheckbox.checked = false; taskUntilDateContainer.style.display = 'none'; viewShiftUserSelect.addEventListener('change',()=>{if(viewShiftUserSelect.value&&viewShiftDateInput.value)displayStaffAvailabilityInAdmin(viewShiftUserSelect.value,viewShiftDateInput.value);else clearStaffAvailabilityDisplayAdmin();}); viewShiftDateInput.addEventListener('change',()=>{if(viewShiftUserSelect.value&&viewShiftDateInput.value)displayStaffAvailabilityInAdmin(viewShiftUserSelect.value,viewShiftDateInput.value);else clearStaffAvailabilityDisplayAdmin();}); shiftUserSelect.addEventListener('change',()=>{if(shiftUserSelect.value&&shiftDateInput.value)displayStaffAvailabilityInAdmin(shiftUserSelect.value,shiftDateInput.value);else clearStaffAvailabilityDisplayAdmin();}); shiftDateInput.addEventListener('change',()=>{if(shiftUserSelect.value&&shiftDateInput.value)displayStaffAvailabilityInAdmin(shiftUserSelect.value,shiftDateInput.value);else clearStaffAvailabilityDisplayAdmin();}); if(shiftUserSelect.value&&shiftDateInput.value)displayStaffAvailabilityInAdmin(shiftUserSelect.value,shiftDateInput.value);else clearStaffAvailabilityDisplayAdmin(); renderAdminAssignedShifts();renderAdminAssignedTasks();renderAdminHolidayList();renderAdminAvailabilityCalendar();renderAdminShiftAttendance();renderAdminTaskOverview();renderPendingSwaps(); renderAuditLog();}
         function handleShiftTypeChange(){customShiftInputContainer.style.display=shiftTypeSelect.value==='custom'?'block':'none';customShiftTypeInput.required=shiftTypeSelect.value==='custom';if(shiftTypeSelect.value!=='custom')customShiftTypeInput.value='';}
         function handleTaskDescriptionChange(){customTaskDescriptionContainer.style.display=taskDescriptionSelect.value==='Custom Task'?'block':'none';customTaskDescriptionInput.required=taskDescriptionSelect.value==='Custom Task';if(taskDescriptionSelect.value!=='Custom Task')customTaskDescriptionInput.value='';}
-        function handleAssignShift(e){ /* ... Same as previous ... */ }
-        function handleAssignTask(e){ /* ... Same as previous ... */ }
-        function renderAdminHolidayList(){ /* ... same ... */ }
-        function handleAddHoliday(e){ /* ... same (logs action) ... */ }
-        function handleDeleteAdminItem(e){ /* ... same (logs action for all types) ... */ }
-        function renderAdminAssignedShifts(){ /* ... same ... */ }
-        function renderAdminAssignedTasks(){ /* ... same ... */ }
-        function renderAdminShiftAttendance(){ /* ... same ... */ }
-        function renderAdminTaskOverview(){ const d=taskOverviewDateFilterInput.value,f=taskStatusFilterSelect.value; /* ... rest of function same ... */ }
+        function handleAssignShift(e){ /* ... Implementation ... */ }
+        function handleAssignTask(e){ /* ... Implementation ... */ }
+        function renderAdminHolidayList(){ /* ... Implementation ... */ }
+        function handleAddHoliday(e){ /* ... Implementation ... */ }
+        function handleDeleteAdminItem(e){ /* ... Implementation ... */ }
+        function renderAdminAssignedShifts(){ /* ... Implementation ... */ }
+        function renderAdminAssignedTasks(){ /* ... Implementation ... */ }
+        function renderAdminShiftAttendance(){ /* ... Implementation ... */ }
+        function renderAdminTaskOverview(){ const d=taskOverviewDateFilterInput.value,f=taskStatusFilterSelect.value; /* ... Implementation ... */ }
 
-        // --- Shift Swap Request Functions ---
-        function openShiftSwapModal(staffName, date, shift) { /* ... same ... */ }
-        function closeShiftSwapModal() { /* ... same ... */ }
-        function handleShiftSwapRequest(event) { /* ... same ... */ }
-        function renderPendingSwaps() { /* ... same ... */ }
-        function handleSwapDecision(requestId, decision) { /* ... same ... */ }
+        function openShiftSwapModal(staffName, date, shift) { /* ... Implementation ... */ }
+        function closeShiftSwapModal() { /* ... Implementation ... */ }
+        function handleShiftSwapRequest(event) { /* ... Implementation ... */ }
+        function renderPendingSwaps() { /* ... Implementation ... */ }
+        function handleSwapDecision(requestId, decision) { /* ... Implementation ... */ }
 
-        // --- CSV Export Functions ---
-        function escapeCsvValue(value) { /* ... same ... */ }
-        function downloadCsv(csvContent, filename) { /* ... same ... */ }
-        function exportRotaToCsv() { /* ... Same, but for WEEKLY rota button ... */ }
-        function exportTasksToCsv() { /* ... same ... */ }
+        function escapeCsvValue(value) { /* ... Implementation ... */ }
+        function downloadCsv(csvContent, filename) { /* ... Implementation ... */ }
+        function exportRotaToCsv() { /* ... Implementation ... */ }
+        function exportTasksToCsv() { /* ... Implementation ... */ }
 
-        // --- Dashboard Functions ---
-        function renderDashboard() { /* ... same (with corrected chart calls) ... */ }
-        function drawHoursByRoleChart(weekDatesForChart) { /* ... same as corrected version with getComputedStyle ... */ }
-        function drawTasksCompletedChart(numDays) { /* ... same as corrected version with getComputedStyle ... */ }
+        function renderDashboard() { /* ... Implementation ... */ }
+        function drawHoursByRoleChart(weekDatesForChart) { /* ... Implementation ... */ }
+        function drawTasksCompletedChart(numDays) { /* ... Implementation ... */ }
 
-        // --- Audit Log Functions ---
-        function renderAuditLog() { /* ... same ... */ }
+        function renderAuditLog() { /* ... Implementation ... */ }
 
         function initApp(){updateHeaderUserInfo();renderAdminToggleButton();renderUserDropdownsInApp();showView(activeViewId);document.getElementById('current-year').textContent=new Date().getFullYear();
             adminToggleButton.addEventListener('click',toggleAdminView);signOutButton.addEventListener('click',handleSignOut);
             if (darkModeToggle) darkModeToggle.addEventListener('click', toggleDarkMode);
-            clockInOutBtnHome.addEventListener('click',toggleClockStatus);navButtons.forEach(b=>b.addEventListener('click',handleNavButtonClick));taskList.addEventListener('change',handleTaskCompletionOrImageAttach);taskList.addEventListener('click',(e)=>{if(e.target.classList.contains('upload-image-btn'))e.target.previousElementSibling.click();});taskList.addEventListener('input',(e)=>{if(e.target.type==='file')handleTaskCompletionOrImageAttach(e);});messageInputForm.addEventListener('submit',handleSendMessage);shiftTypeSelect.addEventListener('change',handleShiftTypeChange);taskDescriptionSelect.addEventListener('change',handleTaskDescriptionChange);assignShiftForm.addEventListener('submit',handleAssignShift);assignTaskForm.addEventListener('submit',handleAssignTask);viewShiftUserSelect.addEventListener('change',renderAdminAssignedShifts);viewShiftDateInput.addEventListener('change',renderAdminAssignedShifts);adminAssignedShiftsList.addEventListener('click',handleDeleteAdminItem);viewTaskUserSelect.addEventListener('change',renderAdminAssignedTasks);viewTaskDateInput.addEventListener('change',renderAdminAssignedTasks);adminAssignedTasksList.addEventListener('click',handleDeleteAdminItem);addHolidayForm.addEventListener('submit',handleAddHoliday);adminHolidayList.addEventListener('click',handleDeleteAdminItem);attendanceDateInput.addEventListener('change',renderAdminShiftAttendance);
+            if (clockInOutBtnHome) clockInOutBtnHome.addEventListener('click',toggleClockStatus);
+            navButtons.forEach(b=>b.addEventListener('click',handleNavButtonClick));
+            if (taskList) { taskList.addEventListener('change',handleTaskCompletionOrImageAttach); taskList.addEventListener('click',(e)=>{if(e.target.classList.contains('upload-image-btn'))e.target.previousElementSibling.click();}); taskList.addEventListener('input',(e)=>{if(e.target.type==='file')handleTaskCompletionOrImageAttach(e);}); }
+            if (messageInputForm) messageInputForm.addEventListener('submit',handleSendMessage);
+            if (shiftTypeSelect) shiftTypeSelect.addEventListener('change',handleShiftTypeChange);
+            if (taskDescriptionSelect) taskDescriptionSelect.addEventListener('change',handleTaskDescriptionChange);
+            if (assignShiftForm) assignShiftForm.addEventListener('submit',handleAssignShift);
+            if (assignTaskForm) assignTaskForm.addEventListener('submit',handleAssignTask);
+            if (viewShiftUserSelect) viewShiftUserSelect.addEventListener('change',renderAdminAssignedShifts);
+            if (viewShiftDateInput) viewShiftDateInput.addEventListener('change',renderAdminAssignedShifts);
+            if (adminAssignedShiftsList) adminAssignedShiftsList.addEventListener('click',handleDeleteAdminItem);
+            if (viewTaskUserSelect) viewTaskUserSelect.addEventListener('change',renderAdminAssignedTasks);
+            if (viewTaskDateInput) viewTaskDateInput.addEventListener('change',renderAdminAssignedTasks);
+            if (adminAssignedTasksList) adminAssignedTasksList.addEventListener('click',handleDeleteAdminItem);
+            if (addHolidayForm) addHolidayForm.addEventListener('submit',handleAddHoliday);
+            if (adminHolidayList) adminHolidayList.addEventListener('click',handleDeleteAdminItem);
+            if (attendanceDateInput) attendanceDateInput.addEventListener('change',renderAdminShiftAttendance);
             if(taskOverviewDateFilterInput) taskOverviewDateFilterInput.addEventListener('change',renderAdminTaskOverview);
             if(taskStatusFilterSelect) taskStatusFilterSelect.addEventListener('change',renderAdminTaskOverview);
-            if(prevWeekAvailabilityBtn)prevWeekAvailabilityBtn.addEventListener('click',()=>changeAvailabilityWeek(-1));if(nextWeekAvailabilityBtn)nextWeekAvailabilityBtn.addEventListener('click',()=>changeAvailabilityWeek(1));
+            if(prevWeekAvailabilityBtn)prevWeekAvailabilityBtn.addEventListener('click',()=>changeAvailabilityWeek(-1));
+            if(nextWeekAvailabilityBtn)nextWeekAvailabilityBtn.addEventListener('click',()=>changeAvailabilityWeek(1));
             if(saveMyAvailabilityBtn) saveMyAvailabilityBtn.addEventListener('click', handleSaveMyAvailability);
             if(adminPrevMonthAvailabilityBtn) adminPrevMonthAvailabilityBtn.addEventListener('click', () => adminChangeAvailabilityCalendarMonth(-1));
             if(adminNextMonthAvailabilityBtn) adminNextMonthAvailabilityBtn.addEventListener('click', () => adminChangeAvailabilityCalendarMonth(1));
             if(adminAvailabilityStaffFilter) adminAvailabilityStaffFilter.addEventListener('change', renderAdminAvailabilityCalendar);
             if(adminAvailabilitySlotFilter) adminAvailabilitySlotFilter.addEventListener('change', renderAdminAvailabilityCalendar);
-            if(exportRotaCsvBtn) { 
-                 exportRotaCsvBtn.style.display = isCurrentUserAdmin() ? 'inline-flex' : 'none';
-                 if(isCurrentUserAdmin()) exportRotaCsvBtn.addEventListener('click', exportRotaToCsv);
-            }
-            if(exportTasksCsvBtn) {
-                exportTasksCsvBtn.style.display = isCurrentUserAdmin() ? 'inline-flex' : 'none';
-                if(isCurrentUserAdmin()) exportTasksCsvBtn.addEventListener('click', exportTasksToCsv);
-            }
+            if(exportRotaCsvBtn) { exportRotaCsvBtn.style.display = isCurrentUserAdmin() ? 'inline-flex' : 'none'; if(isCurrentUserAdmin()) exportRotaCsvBtn.addEventListener('click', exportRotaToCsv); }
+            if(exportTasksCsvBtn) { exportTasksCsvBtn.style.display = isCurrentUserAdmin() ? 'inline-flex' : 'none'; if(isCurrentUserAdmin()) exportTasksCsvBtn.addEventListener('click', exportTasksToCsv); }
             if(shiftRepeatWeeklyCheckbox) shiftRepeatWeeklyCheckbox.addEventListener('change', () => { shiftUntilDateContainer.style.display = shiftRepeatWeeklyCheckbox.checked ? 'block' : 'none'; if(shiftRepeatWeeklyCheckbox.checked) shiftUntilDateInput.required = true; else shiftUntilDateInput.required = false; });
             if(taskRepeatWeeklyCheckbox) taskRepeatWeeklyCheckbox.addEventListener('change', () => { taskUntilDateContainer.style.display = taskRepeatWeeklyCheckbox.checked ? 'block' : 'none'; if(taskRepeatWeeklyCheckbox.checked) taskUntilDateInput.required = true; else taskUntilDateInput.required = false; });
             if(toggleAuditLogBtn) toggleAuditLogBtn.addEventListener('click', () => { auditLogList.style.display = auditLogList.style.display === 'none' ? 'block' : 'none'; if(auditLogList.style.display === 'block') renderAuditLog(); });
@@ -1136,7 +1219,9 @@
 
             if(isAdminMode){renderAdminShiftAttendance();renderAdminTaskOverview();renderAdminHolidayList(); renderAdminAvailabilityCalendar(); renderPendingSwaps(); renderAuditLog();}
             const delBtnsAdm=adminView.querySelectorAll('.delete-btn');const disDelBtns=!isCurrentUserAdmin();delBtnsAdm.forEach(b=>b.disabled=disDelBtns);
-            prevMonthBtn.addEventListener('click',goToPrevMonth);nextMonthBtn.addEventListener('click',goToNextMonth);calendarRoleFilter.addEventListener('change',renderCalendar);
+            if(prevMonthBtn) prevMonthBtn.addEventListener('click',goToPrevMonth);
+            if(nextMonthBtn) nextMonthBtn.addEventListener('click',goToNextMonth);
+            if(calendarRoleFilter) calendarRoleFilter.addEventListener('change',renderCalendar);
              setupHomeTabs();
              window.addEventListener('resize', debounce(setupHomeTabs, 200));
         }
@@ -1150,12 +1235,12 @@
                 appContainer.style.display='flex';
                 initApp();
                 if(isAdminMode && activeViewId==='admin-view'){
-                    renderAdminForms(); // Ensure admin forms are rendered if landing directly in admin mode
+                    renderAdminForms(); 
                 }
             } else {
                 landingPage.style.display='flex';
                 appContainer.style.display='none';
-                renderLandingPage(); // Render landing page if no user is logged in
+                renderLandingPage(); 
             }
         });
     </script>

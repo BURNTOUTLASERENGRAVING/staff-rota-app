@@ -23,15 +23,15 @@
     <div id="app-container" class="hidden">
         <header class="hidden">
             <div class="header-top">
-                <h1>Staff Rota & Tasks</h1>
+                <h1>RotaApp</h1>
                 <div class="header-controls">
                     <span id="user-info"></span>
-                    <button id="admin-toggle-btn" class="btn btn-secondary">Admin Panel</button>
+                    <button id="admin-toggle-btn" class="btn btn-secondary">Admin</button>
                     <button id="sign-out-btn" class="btn btn-danger">Sign Out</button>
                 </div>
             </div>
             <nav>
-                <button id="nav-home">Home</button>
+                <button id="nav-home" class="active">Home</button>
                 <button id="nav-my-tasks">My Tasks</button>
                 <button id="nav-my-availability">My Availability</button>
                 <button id="nav-weekly-rota">Weekly Rota</button>
@@ -48,10 +48,7 @@
                     <div class="card">
                         <h2>Enter PIN for <strong id="pin-login-user-display">User</strong></h2>
                         <form id="pin-login-form">
-                            <div>
-                                <label for="pin-input">4-Digit PIN:</label>
-                                <input type="password" id="pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" required autocomplete="off">
-                            </div>
+                            <div><input type="password" id="pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" required autocomplete="off"></div>
                             <div class="pin-actions">
                                 <button type="submit" class="btn btn-primary">Login</button>
                                 <button type="button" id="pin-cancel-btn" class="btn btn-secondary">Cancel</button>
@@ -61,61 +58,95 @@
                 </div>
             </section>
 
-            <!-- Placeholder pages for navigation -->
-            <section id="home-view" class="card hidden"><h2>Home Dashboard</h2><p>Welcome! Key metrics and notifications will be shown here.</p></section>
-            <section id="my-tasks-view" class="card hidden"><h2>My Tasks</h2><p>Your tasks for the day will be listed here.</p></section>
-            <section id="my-availability-view" class="card hidden"><h2>My Availability</h2><p>Your weekly availability schedule will be managed here.</p></section>
-            <section id="weekly-rota-view" class="card hidden"><h2>Weekly Rota</h2><p>The upcoming weekly staff rota will be displayed here.</p></section>
-            <section id="calendar-view" class="card hidden"><h2>Calendar View</h2><p>A full monthly calendar view of shifts will be available here.</p></section>
-            <section id="dashboard-view" class="card hidden"><h2>Admin Dashboard</h2><p>High-level business analytics, charts, and key metrics will be displayed here.</p></section>
-            <section id="my-settings-view" class="card hidden"><h2>My Settings</h2><p>Options to change your PIN and other personal settings will be available here.</p></section>
+            <!-- Home View -->
+            <section id="home-view" class="card hidden">
+              <h2>Home Dashboard</h2>
+              <div id="clock-status-banner">
+                <span>You are currently not clocked in.</span>
+                <button class="btn btn-primary">Clock In</button>
+              </div>
+              <div class="home-grid">
+                <div>
+                  <h3>Who's Working Today</h3>
+                  <ul class="who-is-working-column" id="whos-working-today"></ul>
+                </div>
+                <div>
+                  <h3>Your Tasks Today</h3>
+                  <ul id="your-tasks-today"></ul>
+                </div>
+                <div>
+                  <h3>Message Board</h3>
+                  <ul id="message-board-list"></ul>
+                </div>
+              </div>
+            </section>
+            
+            <section id="my-tasks-view" class="card hidden"><h2>My Tasks</h2><p>A full view of your upcoming tasks.</p></section>
 
-            <!-- Admin View -->
+            <section id="my-availability-view" class="card hidden">
+                <h2>My Availability</h2>
+                <div id="availability-grid"></div>
+                <button class="btn btn-primary" style="margin-top: 20px;">Save Availability</button>
+            </section>
+            
+            <section id="weekly-rota-view" class="card hidden"><h2>Weekly Rota</h2><p>List view of the weekly rota.</p></section>
+
+            <section id="calendar-view" class="card hidden">
+              <h2>Monthly Rota Calendar</h2>
+              <div class="calendar-controls">
+                <button class="btn btn-secondary" id="calendar-prev-month">◄ Prev</button>
+                <h3 id="calendar-month-year">June 2025</h3>
+                <button class="btn btn-secondary" id="calendar-next-month">Next ►</button>
+              </div>
+              <div class="calendar-grid">
+                <div class="day-name">Mon</div><div class="day-name">Tue</div><div class="day-name">Wed</div><div class="day-name">Thu</div><div class="day-name">Fri</div><div class="day-name">Sat</div><div class="day-name">Sun</div>
+                <!-- Calendar days will be generated by JS -->
+              </div>
+            </section>
+            
+            <section id="dashboard-view" class="card hidden"><h2>Admin Dashboard</h2><p>Analytics and high-level views for management.</p></section>
+            <section id="my-settings-view" class="card hidden"><h2>My Settings</h2><p>Change your PIN and other settings.</p></section>
+
+            <!-- Main Admin Panel -->
             <section id="admin-view" class="card hidden">
-                <h2>Admin Panel</h2>
-                <div id="account-management-section" class="admin-section hidden">
+              <h2>Admin Panel</h2>
+              <div class="admin-tabs">
+                <button class="admin-tab-btn active" data-tab="staff">Staff Management</button>
+                <button class="admin-tab-btn" data-tab="rota">Rota & Shifts</button>
+                <button class="admin-tab-btn" data-tab="tasks">Tasks</button>
+                <button class="admin-tab-btn" data-tab="holidays">Holidays & Leave</button>
+              </div>
+
+              <div class="admin-tab-content">
+                <!-- Staff Management Tab -->
+                <div id="admin-tab-staff" class="active">
+                    <br>
                     <div class="admin-grid">
-                        <div class="card">
-                            <h3>Create New User Account</h3>
-                            <p style="font-size: 0.9em; color: var(--text-light); margin-bottom: 20px;">New staff are assigned a default PIN of "0000".</p>
-                            <form id="admin-create-account-form" class="form-grid">
-                                <div>
-                                    <label for="admin-new-account-name">Full Name</label>
-                                    <input type="text" id="admin-new-account-name" required>
-                                </div>
-                                <div>
-                                    <label for="admin-new-account-wage">Hourly Rate (£)</label>
-                                    <input type="number" id="admin-new-account-wage" required placeholder="e.g., 11.44" step="0.01">
-                                </div>
-                                <div>
-                                    <label for="admin-new-account-gender">Gender</label>
-                                    <select id="admin-new-account-gender" required>
-                                        <option value="" disabled selected>-- Select --</option>
-                                        <option value="male">Male (👨)</option>
-                                        <option value="female">Female (👩)</option>
-                                        <option value="other">Other (👤)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="admin-new-account-role">Role</label>
-                                    <select id="admin-new-account-role" required>
-                                        <option value="" disabled selected>-- Select --</option>
-                                        <option value="FOH">FOH</option>
-                                        <option value="BOH">BOH</option>
-                                        <option value="Supervisor">Supervisor</option>
-                                        <option value="Manager">Manager</option>
-                                        <option value="Owner">Owner</option>
-                                    </select>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Create Account</button>
-                            </form>
-                        </div>
-                        <div class="card">
-                          <h3>Existing User Accounts</h3>
-                          <ul id="user-accounts-list"><li class="no-data">Loading accounts...</li></ul>
-                        </div>
+                      <div class="card">
+                          <h3>Create New Staff Member</h3>
+                          <form id="admin-create-account-form" class="form-grid">
+                              <div class="full-width"><label for="admin-new-account-name">Full Name</label><input type="text" id="admin-new-account-name" required></div>
+                              <div><label for="admin-new-account-wage">Hourly Rate (£)</label><input type="number" id="admin-new-account-wage" required placeholder="e.g., 11.44" step="0.01"></div>
+                              <div><label for="admin-new-account-gender">Gender</label><select id="admin-new-account-gender" required><option value="" disabled selected>-- Select --</option><option value="male">Male (👨)</option><option value="female">Female (👩)</option><option value="other">Other (👤)</option></select></div>
+                              <div class="full-width"><label for="admin-new-account-role">Role</label><select id="admin-new-account-role" required><option value="" disabled selected>-- Select --</option><option value="FOH">FOH</option><option value="BOH">BOH</option><option value="Supervisor">Supervisor</option><option value="Manager">Manager</option><option value="Owner">Owner</option></select></div>
+                              <div class="full-width"><button type="submit" class="btn btn-primary">Create Account</button></div>
+                          </form>
+                      </div>
+                      <div class="card">
+                        <h3>Existing Staff Accounts</h3>
+                        <ul id="user-accounts-list"><li class="no-data">Loading...</li></ul>
+                      </div>
                     </div>
                 </div>
+
+                <!-- Rota & Shifts Tab -->
+                <div id="admin-tab-rota" class="hidden"><h3>Rota Management</h3><p>Assign shifts, view staff availability, and manage the full rota.</p></div>
+                <!-- Tasks Tab -->
+                <div id="admin-tab-tasks" class="hidden"><h3>Task Management</h3><p>Assign daily or weekly tasks to staff members.</p></div>
+                <!-- Holidays Tab -->
+                <div id="admin-tab-holidays" class="hidden"><h3>Holidays & Leave</h3><p>Approve holiday requests and manage business-wide closures.</p></div>
+
+              </div>
             </section>
         </main>
     </div>

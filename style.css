@@ -1,4 +1,4 @@
-/* style.css - V1 Clean & Simple Redesign */
+/* style.css - V1.1 with Full Feature Styling */
 
 /* ==========================================================================
    1. ROOT VARIABLES & GLOBAL STYLES
@@ -16,122 +16,77 @@
   --danger-hover: #c53030;
   --success-color: #48bb78;
   --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  --role-foh-bg: #e0f2f7; --role-foh-text: #007bff;
+  --role-boh-bg: #e6ffe6; --role-boh-text: #28a745;
+  --role-supervisor-bg: #fff8e1; --role-supervisor-text: #ffc107;
+  --role-manager-bg: #f1f3f5; --role-manager-text: #4a5568;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background-color: var(--primary-bg);
   color: var(--text-color);
 }
-
-h1, h2, h3 {
-  font-weight: 600;
-  letter-spacing: -0.5px;
-}
+h1, h2, h3 { font-weight: 600; letter-spacing: -0.5px; }
 h2 { font-size: 1.5em; margin-bottom: 20px; color: var(--text-color); }
 h3 { font-size: 1.2em; margin-bottom: 15px; color: var(--text-light); }
+.hidden { display: none !important; }
 
 /* ==========================================================================
    2. MAIN LAYOUT & CONTAINERS
    ========================================================================== */
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
+.container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px; }
+#landing-page, #app-container { display: flex; flex-direction: column; }
 
-.hidden { display: none !important; }
-
-#landing-page, #app-container {
-  display: flex;
-  flex-direction: column;
+.card {
+  background-color: var(--secondary-bg);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
 }
+main > section:not(#pin-entry-view) { margin-top: 20px; }
 
 /* ==========================================================================
    3. HEADER & NAVIGATION
    ========================================================================== */
 header {
-  background-color: var(--header-bg);
-  color: #fff;
-  padding: 15px 25px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  background-color: var(--header-bg); color: #fff; padding: 15px 25px;
+  display: flex; flex-direction: column; gap: 15px; border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
-
-.header-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 15px;
-}
+.header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
 .header-top h1 { font-size: 1.5em; color: #fff; letter-spacing: -1px; }
-
-.header-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.header-controls { display: flex; align-items: center; gap: 12px; }
 #user-info { font-weight: 500; font-size: 0.9em; }
 
 nav {
-  width: 100%;
-  border-top: 1px solid #4a5568;
-  padding-top: 15px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  width: 100%; border-top: 1px solid #4a5568; padding-top: 15px;
+  display: flex; flex-wrap: wrap; gap: 8px;
 }
 nav button {
-  background-color: #4a5568;
-  color: #e2e8f0;
-  font-weight: 500;
-  padding: 8px 12px;
-  border-radius: 6px;
+  background-color: #4a5568; color: #e2e8f0; font-weight: 500;
+  padding: 8px 12px; border-radius: 6px;
   transition: background-color 0.2s ease, color 0.2s ease;
-  flex-grow: 1; /* Make buttons grow on mobile */
+  flex-grow: 1; border: none; font-family: 'Inter', sans-serif; cursor: pointer;
 }
 nav button:hover { background-color: #718096; }
-nav button.active {
-  background-color: var(--accent-color);
-  color: #fff;
-}
+nav button.active { background-color: var(--accent-color); color: #fff; }
 nav button:disabled { background-color: #2d3748; color: #718096; cursor: not-allowed; }
 
 /* ==========================================================================
-   4. LANDING PAGE & PIN ENTRY
+   4. LANDING PAGE & AUTH
    ========================================================================== */
 #landing-page .card { padding: 40px; text-align: center; }
 #landing-page h1 { font-size: 2em; margin-bottom: 8px; }
 #landing-page p { color: var(--text-light); margin-bottom: 30px; font-size: 1.1em;}
-
-#staff-icons-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 20px;
-}
+#staff-icons-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 20px; }
 .staff-icon {
-  background-color: var(--primary-bg);
-  border: 1px solid var(--border-color);
-  padding: 20px 15px;
-  border-radius: 12px;
-  cursor: pointer;
-  text-align: center;
+  background-color: var(--primary-bg); border: 1px solid var(--border-color);
+  padding: 20px 15px; border-radius: 12px; cursor: pointer; text-align: center;
   transition: all 0.2s ease-in-out;
 }
 .staff-icon:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08); }
@@ -147,17 +102,12 @@ nav button:disabled { background-color: #2d3748; color: #718096; cursor: not-all
 .pin-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
 
 /* ==========================================================================
-   5. GENERAL COMPONENTS
+   5. GENERAL COMPONENTS & FORMS
    ========================================================================== */
-button { border: none; font-family: 'Inter', sans-serif; font-size: 0.9em; cursor: pointer; }
-
 .btn {
-  padding: 10px 18px;
-  border-radius: 6px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  display: inline-block;
-  text-align: center;
+  padding: 10px 18px; border-radius: 6px; font-weight: 600;
+  transition: all 0.2s ease; display: inline-block; text-align: center; border: none;
+  font-family: 'Inter', sans-serif; cursor: pointer;
 }
 .btn-primary { background-color: var(--accent-color); color: #fff; }
 .btn-primary:hover { background-color: var(--accent-hover); }
@@ -168,63 +118,101 @@ button { border: none; font-family: 'Inter', sans-serif; font-size: 0.9em; curso
 
 label { display: block; font-weight: 500; font-size: 0.9em; margin-bottom: 6px; color: var(--text-light); }
 input, select {
-  width: 100%;
-  padding: 10px;
-  font-size: 1em;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background-color: #fff;
+  width: 100%; padding: 10px; font-size: 1em; border: 1px solid var(--border-color);
+  border-radius: 6px; background-color: #fff;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 input:focus, select:focus {
-  outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
+  outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
 }
 
-.card {
-  background-color: var(--secondary-bg);
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: var(--card-shadow);
-  border: 1px solid var(--border-color);
-}
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.form-grid > div { margin-bottom: 0; }
+.full-width { grid-column: 1 / -1; }
 
 /* ==========================================================================
-   6. ADMIN PANEL
+   6. PAGE-SPECIFIC STYLES
    ========================================================================== */
-.admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.form-grid { display: flex; flex-direction: column; gap: 15px; }
+/* Home Page */
+.home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+#clock-status-banner {
+    grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center;
+    padding: 15px; border-radius: 8px; background-color: #fff3cd; color: #664d03;
+}
+.who-is-working-column { list-style: none; }
+.who-is-working-column li {
+    display: flex; align-items: center; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid var(--border-color); font-weight: 500;
+}
+.shift-role-indicator {
+    width: 8px; height: 24px; border-radius: 4px;
+}
+.shift-role-indicator.foh { background-color: var(--role-foh-text); }
+.shift-role-indicator.boh { background-color: var(--role-boh-text); }
+.shift-role-indicator.supervisor { background-color: var(--role-supervisor-text); }
+.shift-role-indicator.manager { background-color: var(--role-manager-text); }
+.shift-time { margin-left: auto; color: var(--text-light); font-size: 0.9em; }
 
-#user-accounts-list { list-style: none; margin-top: 20px; }
+/* Calendar */
+.calendar-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.calendar-grid .day-name { text-align: center; font-weight: 600; padding: 10px 0; color: var(--text-light); }
+.calendar-day {
+    border: 1px solid var(--border-color); border-radius: 8px; min-height: 120px; padding: 8px;
+    font-size: 0.85em; background-color: rgba(0,0,0,0.02);
+}
+.calendar-day.current-month { background-color: #fff; }
+.calendar-day .day-number { font-weight: 600; }
+.calendar-day ul { list-style: none; margin-top: 5px; }
+.calendar-day li { padding: 3px 6px; border-radius: 4px; font-size: 0.9em; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.calendar-day li.foh { background-color: var(--role-foh-bg); color: var(--role-foh-text); }
+.calendar-day li.boh { background-color: var(--role-boh-bg); color: var(--role-boh-text); }
+.calendar-day li.supervisor { background-color: var(--role-supervisor-bg); color: var(--role-supervisor-text); }
+.calendar-day li.manager { background-color: var(--role-manager-bg); color: var(--role-manager-text); }
+
+/* Availability Page */
+#availability-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+.availability-day-column { padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; }
+.availability-day-column h4 { margin-top: 0; text-align: center; }
+.availability-day-column label { display: flex; align-items: center; padding: 8px; border-radius: 6px; cursor: pointer; }
+.availability-day-column label:hover { background-color: var(--primary-bg); }
+.availability-day-column input { width: auto; margin-right: 10px; }
+
+/* ==========================================================================
+   7. ADMIN PANEL (TABBED LAYOUT)
+   ========================================================================== */
+.admin-tabs {
+    display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--border-color);
+    margin-bottom: 25px;
+}
+.admin-tab-btn {
+    padding: 12px 20px; font-weight: 600; cursor: pointer;
+    border: none; background-color: transparent; color: var(--text-light);
+    border-bottom: 2px solid transparent; transition: all 0.2s ease;
+}
+.admin-tab-btn.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
+.admin-tab-content > div { animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* User Account List */
 #user-accounts-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  margin-bottom: 10px;
-  transition: background-color 0.2s ease;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 15px; border: 1px solid var(--border-color);
+  border-radius: 8px; margin-bottom: 10px; transition: background-color 0.2s ease;
 }
 #user-accounts-list li:hover { background-color: #fcfdff; }
 .user-details { display: flex; align-items: center; gap: 12px; font-weight: 500; }
 .user-details .icon-placeholder { font-size: 1.5em; line-height: 1; }
 .user-actions { display: flex; gap: 8px; }
-.user-actions button { font-size: 0.8em; padding: 6px 10px; font-weight: 500; border-radius: 5px; }
+.user-actions .btn { font-size: 0.8em; padding: 6px 10px; font-weight: 500; }
 
 /* ==========================================================================
-   7. TOAST NOTIFICATIONS
+   8. TOAST NOTIFICATIONS & RESPONSIVENESS
    ========================================================================== */
 #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .toast {
-  padding: 15px 25px;
-  border-radius: 8px;
-  color: #fff;
-  font-weight: 500;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-  opacity: 0;
-  transform: translateX(100%);
+  padding: 15px 25px; border-radius: 8px; color: #fff; font-weight: 500;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15); opacity: 0; transform: translateX(100%);
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 .toast.show { opacity: 1; transform: translateX(0); }
@@ -232,20 +220,15 @@ input:focus, select:focus {
 .toast.info { background-color: var(--accent-color); }
 .toast.error { background-color: var(--danger-color); }
 
-/* ==========================================================================
-   8. RESPONSIVE DESIGN (MOBILE FIRST)
-   ========================================================================== */
 @media (max-width: 768px) {
   .container { padding: 10px; }
   header { padding: 15px; border-radius: 0; }
-  .admin-grid { grid-template-columns: 1fr; }
-  nav button { flex-basis: calc(33.333% - 6px); } /* 3 per row */
-  #landing-page .card { padding: 20px; }
+  nav button { flex-basis: calc(33.333% - 6px); }
   #toast-container { width: calc(100% - 20px); left: 10px; right: 10px; }
 }
 
 @media (max-width: 480px) {
-  nav button { flex-basis: calc(50% - 4px); } /* 2 per row */
+  nav button { flex-basis: calc(50% - 4px); }
   .header-top { flex-direction: column; align-items: flex-start; }
   .header-controls { width: 100%; justify-content: space-between; }
   .staff-icon { flex-basis: calc(50% - 10px); }

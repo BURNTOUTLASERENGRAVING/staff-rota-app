@@ -5,106 +5,122 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Staff Rota & Task Checklist</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
+
+<div class="container">
     <div id="landing-page">
-        <h1>Welcome!</h1>
-        <p id="landing-page-message">Loading staff profiles...</p>
-        <div id="staff-icons-container">
-            <!-- Staff icons will be dynamically populated here by app.js -->
+        <div class="card">
+            <h1>Welcome!</h1>
+            <p id="landing-page-message">Loading staff profiles...</p>
+            <div id="staff-icons-container"></div>
         </div>
     </div>
 
     <div id="app-container" class="hidden">
         <header class="hidden">
-            <h1>Staff Rota & Tasks</h1>
-            <div class="top-controls">
-                <span id="user-info"></span>
-                <button id="dark-mode-toggle" title="Toggle Dark Mode" aria-label="Toggle Dark Mode">🌙</button>
-                <button id="admin-toggle-btn" class="hidden">Admin Panel</button>
-                <button id="sign-out-btn">Sign Out</button>
+            <div class="header-top">
+                <h1>Staff Rota & Tasks</h1>
+                <div class="header-controls">
+                    <span id="user-info"></span>
+                    <button id="admin-toggle-btn" class="btn btn-secondary">Admin Panel</button>
+                    <button id="sign-out-btn" class="btn btn-danger">Sign Out</button>
+                </div>
             </div>
-            <nav class="nav-buttons">
-                <button id="nav-home" class="active">Home</button>
-                 <button id="nav-my-tasks">My Tasks</button>
+            <nav>
+                <button id="nav-home">Home</button>
+                <button id="nav-my-tasks">My Tasks</button>
+                <button id="nav-my-availability">My Availability</button>
+                <button id="nav-weekly-rota">Weekly Rota</button>
+                <button id="nav-calendar">Calendar</button>
+                <button id="nav-dashboard">Dashboard</button>
+                <button id="nav-my-settings">Settings</button>
             </nav>
         </header>
 
         <main>
-            <!-- PIN Entry View -->
+            <!-- PIN Entry -->
             <section id="pin-entry-view" class="hidden auth-view">
                 <div class="auth-form-container">
-                    <h2 id="pin-entry-title">Enter PIN for <strong id="pin-login-user-display">User</strong></h2>
-                    <form id="pin-login-form">
-                        <div>
-                            <label for="pin-input">4-Digit PIN:</label>
-                            <input type="password" id="pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" required autocomplete="off">
-                        </div>
-                        <button type="submit" class="action-btn">Login</button>
-                        <button type="button" id="pin-cancel-btn" class="action-btn secondary-btn">Cancel</button>
-                    </form>
+                    <div class="card">
+                        <h2>Enter PIN for <strong id="pin-login-user-display">User</strong></h2>
+                        <form id="pin-login-form">
+                            <div>
+                                <label for="pin-input">4-Digit PIN:</label>
+                                <input type="password" id="pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" required autocomplete="off">
+                            </div>
+                            <div class="pin-actions">
+                                <button type="submit" class="btn btn-primary">Login</button>
+                                <button type="button" id="pin-cancel-btn" class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </section>
 
-            <!-- Home View -->
-            <section id="home-view" class="hidden">
-                <h2>Home Dashboard</h2>
-                <p>Welcome to the main application area. More features coming soon!</p>
-            </section>
-            
-             <!-- My Tasks View -->
-            <section id="my-tasks-view" class="hidden">
-                <h2>My Tasks</h2>
-                <p>Your tasks will be listed here.</p>
-            </section>
+            <!-- Placeholder pages for navigation -->
+            <section id="home-view" class="card hidden"><h2>Home Dashboard</h2><p>Welcome! Key metrics and notifications will be shown here.</p></section>
+            <section id="my-tasks-view" class="card hidden"><h2>My Tasks</h2><p>Your tasks for the day will be listed here.</p></section>
+            <section id="my-availability-view" class="card hidden"><h2>My Availability</h2><p>Your weekly availability schedule will be managed here.</p></section>
+            <section id="weekly-rota-view" class="card hidden"><h2>Weekly Rota</h2><p>The upcoming weekly staff rota will be displayed here.</p></section>
+            <section id="calendar-view" class="card hidden"><h2>Calendar View</h2><p>A full monthly calendar view of shifts will be available here.</p></section>
+            <section id="dashboard-view" class="card hidden"><h2>Admin Dashboard</h2><p>High-level business analytics, charts, and key metrics will be displayed here.</p></section>
+            <section id="my-settings-view" class="card hidden"><h2>My Settings</h2><p>Options to change your PIN and other personal settings will be available here.</p></section>
 
             <!-- Admin View -->
-            <section id="admin-view" class="hidden">
+            <section id="admin-view" class="card hidden">
                 <h2>Admin Panel</h2>
                 <div id="account-management-section" class="admin-section hidden">
-                    <h3>Account Management (Owner Access)</h3>
-                    <div id="admin-create-account-section">
-                        <h4>Create New User Account</h4>
-                        <p>New staff will be created with a default PIN of "0000".</p>
-                        <form id="admin-create-account-form">
-                            <div>
-                                <label for="admin-new-account-name">Full Name:</label>
-                                <input type="text" id="admin-new-account-name" required>
-                            </div>
-                            <div>
-                                <label for="admin-new-account-gender">Gender (for icon):</label>
-                                <select id="admin-new-account-gender" required>
-                                    <option value="" disabled selected>-- Select --</option>
-                                    <option value="male">Male (👨)</option>
-                                    <option value="female">Female (👩)</option>
-                                    <option value="other">Other (👤)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="admin-new-account-role">Role:</label>
-                                <select id="admin-new-account-role" required>
-                                    <option value="" disabled selected>-- Select --</option>
-                                    <option value="FOH">FOH (Front of House)</option>
-                                    <option value="BOH">BOH (Back of House)</option>
-                                    <option value="Supervisor">Supervisor</option>
-                                    <option value="Manager">Manager</option>
-                                    <option value="Owner">Owner</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="action-btn">Create Account</button>
-                        </form>
+                    <div class="admin-grid">
+                        <div class="card">
+                            <h3>Create New User Account</h3>
+                            <p style="font-size: 0.9em; color: var(--text-light); margin-bottom: 20px;">New staff are assigned a default PIN of "0000".</p>
+                            <form id="admin-create-account-form" class="form-grid">
+                                <div>
+                                    <label for="admin-new-account-name">Full Name</label>
+                                    <input type="text" id="admin-new-account-name" required>
+                                </div>
+                                <div>
+                                    <label for="admin-new-account-wage">Hourly Rate (£)</label>
+                                    <input type="number" id="admin-new-account-wage" required placeholder="e.g., 11.44" step="0.01">
+                                </div>
+                                <div>
+                                    <label for="admin-new-account-gender">Gender</label>
+                                    <select id="admin-new-account-gender" required>
+                                        <option value="" disabled selected>-- Select --</option>
+                                        <option value="male">Male (👨)</option>
+                                        <option value="female">Female (👩)</option>
+                                        <option value="other">Other (👤)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="admin-new-account-role">Role</label>
+                                    <select id="admin-new-account-role" required>
+                                        <option value="" disabled selected>-- Select --</option>
+                                        <option value="FOH">FOH</option>
+                                        <option value="BOH">BOH</option>
+                                        <option value="Supervisor">Supervisor</option>
+                                        <option value="Manager">Manager</option>
+                                        <option value="Owner">Owner</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Create Account</button>
+                            </form>
+                        </div>
+                        <div class="card">
+                          <h3>Existing User Accounts</h3>
+                          <ul id="user-accounts-list"><li class="no-data">Loading accounts...</li></ul>
+                        </div>
                     </div>
-                    <h4>Existing User Accounts</h4>
-                    <ul id="user-accounts-list"><li class="no-data">Loading accounts...</li></ul>
                 </div>
             </section>
         </main>
-        
-        <footer><p>© <span id="current-year">2024</span> Staff Rota & Task Checklist.</p></footer>
     </div>
 
-    <div id="toast-container" role="alert" aria-live="assertive"></div>
+    <div id="toast-container"></div>
     <script src="app.js"></script>
-
 </body>
 </html>

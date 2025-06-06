@@ -1,4 +1,4 @@
-// staff-rota-backend/server.js - V1.2
+// staff-rota-backend/server.js - V1.3
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -64,26 +64,24 @@ const isOwner = (req, res, next) => {
 // --- API ENDPOINTS ---
 
 // GET users
-// By default, gets public info. With ?full=true and auth, gets sensitive info.
 app.get('/api/users', (req, res) => {
     const isFullRequest = req.query.full === 'true';
 
-    // To get the full list with wages, the user must be authenticated.
     if (isFullRequest) {
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
-        if (!token) return res.status(401).json([]);
-
+        if (!token || token === 'null' || token === '') {
+            return res.status(401).json({ message: 'Authentication required for full user data.' });
+        }
         try {
             jwt.verify(token, JWT_SECRET);
-            // Authenticated, return the full staffMembers object
             return res.json(staffMembers);
         } catch (err) {
-            return res.status(403).json([]);
+            return res.status(403).json({ message: 'Invalid or expired token for full user data.' });
         }
     }
     
-    // Otherwise, return public info only.
+    // Default: return public info only.
     const publicStaffInfo = staffMembers.map(({ pin, wage, ...user }) => user);
     res.json(publicStaffInfo);
 });

@@ -1,56 +1,34 @@
-// app.js - Staff Rota & Task Checklist Application (Frontend)
+// app.js - V1 Clean & Simple
 console.log("app.js loaded");
 
 // ===================================================================================
-// CONFIGURATION
+// CONFIGURATION & STATE
 // ===================================================================================
-const BACKEND_URL = 'https://staff-rota-backend.onrender.com'; 
+const BACKEND_URL = 'https://staff-rota-backend.onrender.com';
+const ROLES = { OWNER: 'Owner', MANAGER: 'Manager' };
 
-const ROLES = { FOH: 'FOH', BOH: 'BOH', SUPERVISOR: 'Supervisor', MANAGER: 'Manager', OWNER: 'Owner' };
-
-// ===================================================================================
-// APPLICATION STATE
-// ===================================================================================
 let staffMembers = [];
-let rota = {}; // Placeholder for future data
-let currentUserId = null;
-let currentUserName = null;
-let currentUserRole = null;
 let authToken = null;
-let staffMemberToLogin = null; // Holds the user object selected on the landing page
+let currentUser = null;
+let staffMemberToLogin = null;
+let activeView = 'home-view';
 
 // ===================================================================================
 // DOM ELEMENT SELECTORS
 // ===================================================================================
 const landingPage = document.getElementById('landing-page');
 const staffIconsContainer = document.getElementById('staff-icons-container');
-const landingPageMessage = document.getElementById('landing-page-message');
 const appContainer = document.getElementById('app-container');
-const appHeader = document.querySelector('#app-container header');
+const header = document.querySelector('header');
 const pinEntryView = document.getElementById('pin-entry-view');
-const pinInput = document.getElementById('pin-input');
-const pinLoginForm = document.getElementById('pin-login-form');
-const pinLoginUserDisplay = document.getElementById('pin-login-user-display');
-const pinCancelBtn = document.getElementById('pin-cancel-btn');
-const signOutButton = document.getElementById('sign-out-btn');
-const userInfoSpan = document.getElementById('user-info');
-
-// Admin Panel Elements
-const adminView = document.getElementById('admin-view');
-const accountManagementSection = document.getElementById('account-management-section');
-const adminCreateAccountForm = document.getElementById('admin-create-account-form');
-const adminNewAccountNameInput = document.getElementById('admin-new-account-name');
-const adminNewAccountGenderSelect = document.getElementById('admin-new-account-gender');
-const adminNewAccountRoleSelect = document.getElementById('admin-new-account-role');
-const userAccountsList = document.getElementById('user-accounts-list');
-const adminToggleButton = document.getElementById('admin-toggle-btn');
-
+const mainViews = document.querySelectorAll('main > section');
 const toastContainer = document.getElementById('toast-container');
+const adminView = document.getElementById('admin-view');
 
 // ===================================================================================
-// UTILITY FUNCTIONS
+// UTILITY & UI FUNCTIONS
 // ===================================================================================
-function showToast(message, type = 'info', duration = 3000) {
+function showToast(message, type = 'info', duration = 3500) {
     if (!toastContainer) return;
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
@@ -65,268 +43,213 @@ function showToast(message, type = 'info', duration = 3000) {
     }, 10);
 }
 
-function getStaffMemberById(userId) {
-    return staffMembers.find(s => s.id === userId);
-}
-
-// ===================================================================================
-// UI RENDERING & VIEW MANAGEMENT
-// ===================================================================================
 function showView(viewId) {
-    document.querySelectorAll('main section').forEach(section => {
-        section.classList.add('hidden');
+    activeView = viewId;
+    mainViews.forEach(view => view.classList.toggle('hidden', view.id !== viewId));
+    document.querySelectorAll('nav button').forEach(button => {
+        button.classList.remove('active');
+        if (button.id === `nav-${viewId.replace('-view', '')}`) {
+            button.classList.add('active');
+        }
     });
-    const view = document.getElementById(viewId);
-    if (view) {
-        view.classList.remove('hidden');
-    }
 }
 
+function updateHeader() {
+    if (!header) return;
+    const userInfoSpan = document.getElementById('user-info');
+    const adminBtn = document.getElementById('admin-toggle-btn');
+    const dashboardNav = document.getElementById('nav-dashboard');
+
+    const canAccessAdmin = currentUser && (currentUser.role === ROLES.OWNER || currentUser.role === ROLES.MANAGER);
+    adminBtn.classList.toggle('hidden', !canAccessAdmin);
+    dashboardNav.classList.toggle('hidden', !canAccessAdmin);
+
+    userInfoSpan.textContent = currentUser ? `${currentUser.name} (${currentUser.role})` : '';
+}
+
+// ===================================================================================
+// DATA RENDERING
+// ===================================================================================
 function renderLandingPage() {
     appContainer.classList.add('hidden');
     landingPage.classList.remove('hidden');
     staffIconsContainer.innerHTML = '';
-
-    if (staffMembers && staffMembers.length > 0) {
-        landingPageMessage.textContent = "Please select your profile to continue:";
-        const sortedStaff = [...staffMembers].sort((a, b) => a.name.localeCompare(b.name));
-        sortedStaff.forEach(member => {
-            const iconDiv = document.createElement('div');
-            iconDiv.className = `staff-icon role-${member.role.toLowerCase()}`;
-            iconDiv.dataset.id = member.id;
-            iconDiv.innerHTML = `<span class="icon-placeholder">${member.icon}</span><div class="staff-name">${member.name}</div><div class="staff-role">${member.role}</div>`;
-            iconDiv.addEventListener('click', () => openPinEntryScreen(member.id));
-            staffIconsContainer.appendChild(iconDiv);
-        });
-    } else {
-        landingPageMessage.textContent = "Could not load staff profiles.";
-        staffIconsContainer.innerHTML = '<p class="no-data">Could not connect to the server. Please check Render.com dashboard for backend status and refresh the page.</p>';
-    }
-}
-
-function updateHeaderUI() {
-    if (authToken && currentUserId) {
-        appHeader.classList.remove('hidden');
-        userInfoSpan.textContent = `${currentUserName} (${currentUserRole})`;
-        adminToggleButton.classList.toggle('hidden', !(currentUserRole === ROLES.OWNER || currentUserRole === ROLES.MANAGER));
-    } else {
-        appHeader.classList.add('hidden');
-    }
-}
-
-// ===================================================================================
-// AUTHENTICATION & ACCOUNT MANAGEMENT
-// ===================================================================================
-function openPinEntryScreen(userId) {
-    staffMemberToLogin = getStaffMemberById(userId);
-    if (!staffMemberToLogin) {
-        showToast('Error: User profile not found.', 'error');
+    
+    if (!staffMembers || staffMembers.length === 0) {
+        document.getElementById('landing-page-message').textContent = 'Could not load staff profiles.';
         return;
     }
-    pinLoginUserDisplay.textContent = staffMemberToLogin.name;
-    pinInput.value = '';
+    
+    document.getElementById('landing-page-message').textContent = 'Please select your profile to continue:';
+    staffMembers.forEach(member => {
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'staff-icon';
+        iconDiv.dataset.id = member.id;
+        iconDiv.innerHTML = `<span class="icon-placeholder">${member.icon}</span><span class="staff-name">${member.name}</span><span class="staff-role">${member.role}</span>`;
+        iconDiv.addEventListener('click', () => openPinEntryScreen(member));
+        staffIconsContainer.appendChild(iconDiv);
+    });
+}
+
+function renderAdminUsersList() {
+    const userList = document.getElementById('user-accounts-list');
+    if (!userList) return;
+    userList.innerHTML = '';
+    staffMembers.sort((a,b) => a.name.localeCompare(b.name)).forEach(user => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <div class="user-details">
+                <span class="icon-placeholder">${user.icon}</span>
+                <span>
+                    <strong>${user.name}</strong><br>
+                    <small style="color: var(--text-light);">${user.role}</small>
+                </span>
+            </div>
+            <div class="user-actions">
+                <button class="btn btn-secondary">Reset PIN</button>
+                <button class="btn btn-secondary">Edit</button>
+                ${currentUser.id !== user.id ? '<button class="btn btn-danger">Delete</button>' : ''}
+            </div>
+        `;
+        userList.appendChild(li);
+    });
+}
+
+// ===================================================================================
+// AUTH & ACCOUNT MANAGEMENT
+// ===================================================================================
+function openPinEntryScreen(user) {
+    staffMemberToLogin = user;
+    document.getElementById('pin-login-user-display').textContent = user.name;
+    document.getElementById('pin-input').value = '';
     landingPage.classList.add('hidden');
     appContainer.classList.remove('hidden');
     showView('pin-entry-view');
-    setTimeout(() => pinInput.focus(), 50);
-}
-
-function handleCancelPinEntry() {
-    staffMemberToLogin = null;
-    pinInput.value = '';
-    renderLandingPage(); 
-}
-
-async function handlePinLogin(event) {
-    event.preventDefault();
-    const enteredPin = pinInput.value;
-    if (!staffMemberToLogin) {
-        showToast('Error: No user selected for login.', 'error');
-        return;
-    }
-    if (!/^\d{4}$/.test(enteredPin)) {
-        showToast('PIN must be 4 digits.', 'error');
-        pinInput.value = '';
-        return;
-    }
-
-    try {
-        showToast("Verifying PIN...", "info", 2000);
-        const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: staffMemberToLogin.id, pin: enteredPin })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || 'Login failed.');
-        }
-        
-        authToken = data.token;
-        currentUserId = data.user.id;
-        currentUserName = data.user.name;
-        currentUserRole = data.user.role;
-
-        localStorage.setItem('authToken', authToken);
-        localStorage.setItem('loggedInUser', JSON.stringify(data.user));
-
-        showToast(`Welcome, ${currentUserName}!`, 'success');
-        initializeAppUI();
-
-    } catch (error) {
-        showToast(error.message, 'error');
-        pinInput.value = '';
-        pinInput.focus();
-    }
+    setTimeout(() => document.getElementById('pin-input').focus(), 50);
 }
 
 function handleSignOut() {
-    const name = currentUserName;
+    showToast(`Goodbye, ${currentUser.name}!`, 'info');
     authToken = null;
-    currentUserId = null;
-    currentUserName = null;
-    currentUserRole = null;
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('loggedInUser');
-    
-    updateHeaderUI();
+    currentUser = null;
+    localStorage.clear();
+    header.classList.add('hidden');
     renderLandingPage();
-    showToast(`Goodbye, ${name}!`, 'info');
 }
 
-async function handleAdminCreateAccountSubmit(event) {
-    event.preventDefault();
-    if (!authToken) {
-        showToast('Authentication error. Please log in again.', 'error');
-        return;
+async function handlePinLogin(e) {
+    e.preventDefault();
+    const pin = document.getElementById('pin-input').value;
+    if (!staffMemberToLogin || !pin) return;
+
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: staffMemberToLogin.id, pin })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message);
+        
+        authToken = data.token;
+        currentUser = data.user;
+        localStorage.setItem('authToken', authToken);
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
+        showToast(`Welcome, ${currentUser.name}!`, 'success');
+        initializeAppUI();
+    } catch (error) {
+        showToast(error.message || 'Login failed.', 'error');
     }
+}
 
-    const name = adminNewAccountNameInput.value.trim();
-    const gender = adminNewAccountGenderSelect.value;
-    const role = adminNewAccountRoleSelect.value;
+async function handleCreateAccount(e) {
+    e.preventDefault();
+    const form = e.target;
+    const name = form.querySelector('#admin-new-account-name').value;
+    const wage = form.querySelector('#admin-new-account-wage').value;
+    const gender = form.querySelector('#admin-new-account-gender').value;
+    const role = form.querySelector('#admin-new-account-role').value;
 
-    if (!name || !gender || !role) {
-        showToast('Please fill out all fields to create an account.', 'warning');
-        return;
+    if (!name || !gender || !role || !wage) {
+        return showToast('Please fill out all fields.', 'error');
     }
 
     try {
         const response = await fetch(`${BACKEND_URL}/api/users`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-            body: JSON.stringify({ name, gender, role })
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`},
+            body: JSON.stringify({ name, wage: parseFloat(wage), gender, role })
         });
-
         const result = await response.json();
-
-        if (!response.ok) { throw new Error(result.message || 'Failed to create account.'); }
+        if (!response.ok) throw new Error(result.message);
 
         showToast(result.message, 'success');
-        adminCreateAccountForm.reset();
-
         staffMembers.push(result.user);
-        renderUserAccountsList();
-
+        renderAdminUsersList();
+        form.reset();
     } catch (error) {
-        showToast(`Error: ${error.message}`, 'error');
+        showToast(error.message || 'Failed to create account.', 'error');
     }
-}
-
-function renderUserAccountsList() {
-    if (!userAccountsList) return;
-    userAccountsList.innerHTML = ''; 
-
-    if (!(currentUserRole === ROLES.OWNER)) {
-        accountManagementSection.classList.add('hidden');
-        return;
-    }
-    accountManagementSection.classList.remove('hidden');
-
-    if (staffMembers.length === 0) {
-        userAccountsList.innerHTML = `<li class="no-data">No accounts to display.</li>`;
-        return;
-    }
-    
-    const sortedStaff = [...staffMembers].sort((a, b) => a.name.localeCompare(b.name));
-
-    sortedStaff.forEach(user => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <div class="user-details">
-                <span class="icon-placeholder">${user.icon}</span>
-                <span><strong>${user.name}</strong> (${user.role})</span>
-            </div>
-            <div class="user-actions">
-                <button class="reset-pin-btn" data-id="${user.id}">Reset PIN</button>
-                <button class="edit-btn" data-id="${user.id}">Edit</button>
-                ${user.role !== ROLES.OWNER ? `<button class="delete-btn" data-type="account" data-id="${user.id}">Delete</button>` : ''}
-            </div>
-        `;
-        userAccountsList.appendChild(li);
-    });
 }
 
 // ===================================================================================
-// APPLICATION INITIALIZATION
+// INITIALIZATION & EVENT LISTENERS
 // ===================================================================================
 function initializeAppUI() {
     appContainer.classList.remove('hidden');
     landingPage.classList.add('hidden');
-    updateHeaderUI();
-    showView('home-view');
-    
-    if (currentUserRole === ROLES.OWNER) {
-        renderUserAccountsList();
-    }
+    header.classList.remove('hidden');
+    updateHeader();
+    showView(activeView);
+    if(currentUser.role === ROLES.OWNER) renderAdminUsersList();
+    document.getElementById('account-management-section').classList.toggle('hidden', currentUser.role !== ROLES.OWNER);
+}
+
+function initEventListeners() {
+    // Nav Buttons
+    document.querySelector('nav').addEventListener('click', e => {
+        if(e.target.tagName !== 'BUTTON') return;
+        const targetViewId = `${e.target.id.replace('nav-','')}-view`;
+        showView(targetViewId);
+    });
+
+    document.getElementById('admin-toggle-btn').addEventListener('click', () => {
+        const currentlyAdmin = activeView === 'admin-view';
+        showView(currentlyAdmin ? 'home-view' : 'admin-view');
+    });
+
+    // Auth
+    document.getElementById('pin-login-form').addEventListener('submit', handlePinLogin);
+    document.getElementById('pin-cancel-btn').addEventListener('click', renderLandingPage);
+    document.getElementById('sign-out-btn').addEventListener('click', handleSignOut);
+
+    // Admin
+    document.getElementById('admin-create-account-form').addEventListener('submit', handleCreateAccount);
 }
 
 async function startApp() {
     try {
         const response = await fetch(`${BACKEND_URL}/api/users`);
-        if (!response.ok) {
-             const errorText = await response.text();
-             console.error('Fetch error response:', errorText);
-             throw new Error('Could not fetch staff list from server.');
-        }
         staffMembers = await response.json();
     } catch (error) {
-        console.error("Failed to fetch initial staff data:", error);
+        console.error("Failed to fetch staff data:", error);
         staffMembers = [];
-        showToast(error.message, 'error', 5000);
+        showToast('Cannot connect to the server.', 'error');
     }
 
     const savedToken = localStorage.getItem('authToken');
-    const savedUser = JSON.parse(localStorage.getItem('loggedInUser'));
+    const savedUser = JSON.parse(localStorage.getItem('currentUser'));
 
     if (savedToken && savedUser) {
         authToken = savedToken;
-        currentUserId = savedUser.id;
-        currentUserName = savedUser.name;
-        currentUserRole = savedUser.role;
-        showToast(`Welcome back, ${currentUserName}!`, 'info');
+        currentUser = savedUser;
         initializeAppUI();
     } else {
         renderLandingPage();
     }
 
-    initAppEventListeners();
-}
-
-function initAppEventListeners() {
-    pinLoginForm.addEventListener('submit', handlePinLogin);
-    pinCancelBtn.addEventListener('click', handleCancelPinEntry);
-    signOutButton.addEventListener('click', handleSignOut);
-    adminCreateAccountForm.addEventListener('submit', handleAdminCreateAccountSubmit);
-    adminToggleButton.addEventListener('click', () => {
-        const adminPanelVisible = !adminView.classList.contains('hidden');
-        if (adminPanelVisible) {
-            showView('home-view');
-        } else {
-            showView('admin-view');
-        }
-    });
+    initEventListeners();
 }
 
 document.addEventListener('DOMContentLoaded', startApp);

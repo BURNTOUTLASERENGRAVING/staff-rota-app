@@ -1,0 +1,234 @@
+/* style.css - Final Version */
+
+/* ==========================================================================
+   1. ROOT VARIABLES & GLOBAL STYLES
+   ========================================================================== */
+:root {
+  --primary-bg: #f4f4f9;
+  --secondary-bg: #ffffff;
+  --text-color: #333333;
+  --light-grey: #e9ecef;
+  --dark-grey: #6c757d;
+  --header-bg: #343a40;
+  --header-text-color: #f8f9fa;
+  --accent-color: #007bff;
+  --accent-hover: #0056b3;
+  --border-color: #dee2e6;
+  --input-bg: #ffffff;
+  --input-border: #ced4da;
+  --button-text-color: #ffffff;
+
+  --success-color: #28a745;
+  --info-color: #17a2b8;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --danger-hover: #c82333;
+
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+  background-color: var(--primary-bg);
+  color: var(--text-color);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* ==========================================================================
+   2. LAYOUT STRUCTURE
+   ========================================================================== */
+#landing-page, #app-container {
+  width: 100%;
+  max-width: 900px;
+  background-color: var(--secondary-bg);
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background-color: var(--header-bg);
+  color: var(--header-text-color);
+  padding: 12px 20px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+header.hidden { display: none; }
+header h1 { font-size: 1.5em; margin: 0; color: #fff; }
+.top-controls { display: flex; align-items: center; gap: 10px; }
+#user-info { font-weight: bold; }
+.nav-buttons { width: 100%; display: flex; gap: 10px; border-top: 1px solid #495057; padding-top: 10px; margin-top: 10px;}
+
+main {
+  padding: 20px;
+  flex-grow: 1;
+}
+section.hidden { display: none; }
+
+footer {
+  padding: 15px;
+  text-align: center;
+  font-size: 0.9em;
+  color: var(--dark-grey);
+  border-top: 1px solid var(--border-color);
+}
+
+/* ==========================================================================
+   3. GENERAL COMPONENTS
+   ========================================================================== */
+button, .action-btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9em;
+  cursor: pointer;
+  background-color: var(--accent-color);
+  color: var(--button-text-color);
+  transition: background-color 0.2s ease;
+  font-weight: 500;
+}
+button:hover, .action-btn:hover { background-color: var(--accent-hover); }
+#sign-out-btn { background-color: var(--dark-grey); }
+#sign-out-btn:hover { background-color: #5a6268; }
+#dark-mode-toggle { background: none; border: none; font-size: 1.5em; padding: 0 5px;}
+.btn-danger { background-color: var(--danger-color); }
+.btn-danger:hover { background-color: var(--danger-hover); }
+
+form div { margin-bottom: 15px; }
+label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
+input[type="text"], input[type="password"], select {
+  width: 100%;
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid var(--input-border);
+  border-radius: 5px;
+}
+
+.no-data {
+  color: var(--dark-grey);
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+/* ==========================================================================
+   4. VIEW-SPECIFIC STYLES
+   ========================================================================== */
+/* Landing Page */
+#landing-page { text-align: center; padding: 30px; }
+#landing-page h1 { margin-bottom: 10px; }
+#landing-page p { margin-bottom: 25px; color: var(--dark-grey); }
+#staff-icons-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 20px;
+}
+.staff-icon {
+  padding: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: var(--primary-bg);
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.staff-icon:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.staff-icon .icon-placeholder { font-size: 3.5em; display: block; margin-bottom: 10px; }
+.staff-icon .staff-name { font-weight: bold; }
+.staff-icon .staff-role { font-size: 0.85em; color: var(--dark-grey); text-transform: capitalize; }
+
+/* PIN Entry */
+.auth-form-container { max-width: 400px; margin: 40px auto; padding: 25px; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: var(--card-shadow); }
+.auth-form-container h2 { text-align: center; margin-bottom: 20px; font-weight: 400; }
+#pin-input { letter-spacing: 0.5em; text-align: center; font-size: 1.5em; }
+.auth-form-container button { width: 100%; padding: 12px; margin-top: 5px; }
+.auth-form-container .secondary-btn { background-color: var(--dark-grey); }
+.auth-form-container .secondary-btn:hover { background-color: #5a6268; }
+
+/* Admin Panel */
+.admin-section {
+  padding: 20px;
+  margin-top: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: #fdfdfd;
+}
+.admin-section h3 { margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+.admin-section h4 { margin-top: 20px; margin-bottom: 10px; }
+
+#user-accounts-list {
+  list-style: none;
+  padding: 0;
+}
+#user-accounts-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+#user-accounts-list li:last-child { border-bottom: none; }
+#user-accounts-list .user-details { display: flex; align-items: center; gap: 15px; }
+#user-accounts-list .user-actions { display: flex; gap: 8px; }
+#user-accounts-list .user-actions button { font-size: 0.8em; padding: 5px 8px; }
+
+/* ==========================================================================
+   5. TOAST NOTIFICATIONS
+   ========================================================================== */
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20000;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+}
+.toast {
+  padding: 12px 20px;
+  border-radius: 6px;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  text-align: center;
+  min-width: 250px;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.info { background-color: var(--info-color); }
+.toast.success { background-color: var(--success-color); }
+.toast.error { background-color: var(--danger-color); }
+.toast.warning { background-color: var(--warning-color); color: #333; }
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .nav-buttons {
+    flex-wrap: wrap;
+  }
+}
